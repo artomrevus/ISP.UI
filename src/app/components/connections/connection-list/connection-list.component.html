@@ -1,0 +1,296 @@
+<!-- Header -->
+<app-network-technician-header></app-network-technician-header>
+
+<!-- Body -->
+<div class="connections-container">
+
+  <!-- Body header -->
+  <div class="connections-header">
+    <h1>{{(connectionEmployeeId ? 'Мої підключення' : 'Всі запити')}}</h1>
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="toggleFilterByEmployee()">
+        <mat-icon>all_inbox</mat-icon>
+        {{(connectionEmployeeId ? 'Всі запити' : 'Мої підключення' )}}
+      </button>
+      <button mat-raised-button color="primary" (click)="toggleFilterPanel()">
+        <mat-icon>filter_list</mat-icon>
+        Фільтрувати / Сортувати
+      </button>
+    </div>
+  </div>
+
+  <!-- Body container -->
+  <mat-sidenav-container class="connections-sidenav-container">
+    <mat-sidenav mode="side" [opened]="isFilterPanelVisible" class="filters-sidenav">
+      <app-icrs-filter-panel [internetTariffs]="internetTariffs" [internetTariffStatuses]="internetTariffStatuses"
+        [requestStatuses]="requestStatuses" [clientStatuses]="clientStatuses" [locationTypes]="locationTypes"
+        [cities]="cities" (filtersChanged)="onFiltersChanged($event)">
+      </app-icrs-filter-panel>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <div class="connections-content">
+        <div *ngIf="isIcrsLoading" class="loading-spinner">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+
+        <div *ngIf="!isIcrsLoading && pageIcrs.length === 0" class="no-connections">
+          <p>No connection requests found.</p>
+        </div>
+
+        <!-- Internet connection requests cards -->
+        <div *ngIf="!isIcrsLoading && pageIcrs.length > 0" class="connections-list">
+          <mat-card *ngFor="let icr of pageIcrs" class="connection-card">
+
+            <!-- Card header -->
+            <mat-card-header>
+
+              <div class="status-container">
+                <mat-chip-listbox>
+                  <mat-chip>
+                    {{ icr.internetConnectionRequestStatus.internetConnectionRequestStatusName }}
+                  </mat-chip>
+                </mat-chip-listbox>
+              </div>
+
+              <div class="spacer"></div>
+              <button *ngIf="(isIcrStatus(icr, 'Connected') || isIcrStatus(icr, 'Disconnected')) && icr.connection"
+                mat-icon-button (click)="openEditConnectionDialog(icr)">
+                <mat-icon>{{ 'edit' }}</mat-icon>
+              </button>
+
+            </mat-card-header>
+
+            <!-- Card body -->
+            <mat-card-content>
+              <div class="card-row">
+                <span class="label">Номер запиту:</span>
+                <span class="value">{{ icr.number }}</span>
+              </div>
+
+              <div class="card-row">
+                <span class="label">Дата запиту:</span>
+                <span class="value">{{ icr.requestDate }}</span>
+              </div>
+
+              <!-- Internet tariff expansion panel -->
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <span class="label panel-header-label">Інтернет тариф:</span>
+                    <span class="value">{{ icr.internetTariff.name }}</span>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="expanded-content">
+                  <div class="card-row">
+                    <span class="label">Швидкість інтернету:</span>
+                    <span class="value">{{ icr.internetTariff.internetSpeedMbits }} Mbps</span>
+                  </div>
+
+                  <div class="card-row">
+                    <span class="label">Ціна:</span>
+                    <span class="value">{{ icr.internetTariff.price | currency }}</span>
+                  </div>
+
+                  <div class="card-row" *ngIf="icr.internetTariffId">
+                    <span class="label">Опис:</span>
+                    <span class="value">{{ icr.internetTariff.description }}</span>
+                  </div>
+
+                  <div class="card-row">
+                    <span class="label">Статус:</span>
+                    <span class="value">{{ icr.internetTariff.internetTariffStatus.internetTariffStatusName }}</span>
+                  </div>
+
+                  <div class="card-row">
+                    <span class="label">Тип локації:</span>
+                    <span class="value">{{ icr.internetTariff.locationType.locationTypeName }}</span>
+                  </div>
+                </div>
+              </mat-expansion-panel>
+
+              <!-- Client expansion panel -->
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <span class="label panel-header-label">Клієнт: </span>
+                    <span class="value">{{ icr.client.firstName + " " + icr.client.lastName }}</span>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="expanded-content">
+                  <div class="card-row">
+                    <span class="label">Електронна пошта:</span>
+                    <span class="value">{{ icr.client.email }}</span>
+                  </div>
+
+                  <div class="card-row">
+                    <span class="label">Номер телефону:</span>
+                    <span class="value">{{ icr.client.phoneNumber }}</span>
+                  </div>
+
+                  <div class="card-row">
+                    <span class="label">Адреса:</span>
+                    <span class="value">
+                      {{
+                      "м. " + icr.client.location.house.street.city.cityName + ", вул. " +
+                      icr.client.location.house.street.streetName + ", буд. " +
+                      icr.client.location.house.houseNumber + ", кв. " +
+                      (icr.client.location.apartmentNumber ?? "немає") + ". Тип: " +
+                      icr.client.location.locationType.locationTypeName
+                      }}
+                    </span>
+                  </div>
+
+                  <div class="card-row">
+                    <span class="label">Статус:</span>
+                    <span class="value">{{ icr.client.clientStatus.clientStatusName }}</span>
+                  </div>
+                </div>
+              </mat-expansion-panel>
+
+              <!-- Connection expansion panel -->
+              <mat-expansion-panel *ngIf="(isIcrStatus(icr, 'Connected') || isIcrStatus(icr, 'Disconnected'))">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <span class="label panel-header-label">Підключення:</span>
+                    <span class="value">
+                      {{ icr.connection?.connectionDate ?? "Не створено" }}
+                    </span>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="expanded-content">
+                  <ng-container *ngIf="!icr.connection && isIcrStatus(icr, 'Connected')">
+                    <div class="connection-button-container">
+                      <button mat-raised-button color="primary" (click)="openCreateConnectionDialog(icr)">
+                        <mat-icon>add</mat-icon> Створити підключення
+                      </button>
+                    </div>
+                  </ng-container>
+
+                  <ng-container *ngIf="icr.connection">
+
+                    <div class="card-row">
+                      <span class="label">Дата підключення:</span>
+                      <span class="value">
+                        {{ icr.connection.connectionDate }}
+                      </span>
+                    </div>
+
+                    <div class="card-row">
+                      <span class="label">Тариф на підключення:</span>
+                      <span class="value">
+                        {{ icr.connection.connectionTariff.name }} - {{ icr.connection.connectionTariff.price | currency
+                        }}
+                      </span>
+                    </div>
+
+                    <div class="card-row">
+                      <span class="label">Обладнання для підключення:</span>
+                      <div class="value equipment-list">
+                        <ng-container
+                          *ngIf="icr.connection.connectionEquipments && icr.connection.connectionEquipments.length > 0; else noEquipment">
+                          <div *ngFor="let item of icr.connection.connectionEquipments" class="equipment-item-display">
+                            <div class="equipment-name-display">
+                              {{ item.officeEquipment.equipment.name }}
+                            </div>
+                            <div class="equipment-details-display">
+                              {{ item.connectionEquipmentAmount }} шт. x {{ item.officeEquipment.equipment.price |
+                              currency }} =
+                              {{ item.connectionEquipmentAmount * item.officeEquipment.equipment.price | currency }}
+                            </div>
+                          </div>
+                          <div class="equipment-total">
+                            <strong>Загальна вартість обладнання:</strong>
+                            {{ calculateEquipmentTotal(icr.connection.connectionEquipments) | currency }}
+                          </div>
+                        </ng-container>
+                        <ng-template #noEquipment>
+                          <span class="no-equipment">Обладнання не вибрано</span>
+                        </ng-template>
+                      </div>
+                    </div>
+
+                    <div class="card-row">
+                      <span class="label">Загальна вартість:</span>
+                      <span class="value">
+                        {{ icr.connection.totalPrice | currency }}
+                      </span>
+                    </div>
+
+                  </ng-container>
+                </div>
+              </mat-expansion-panel>
+
+              <!-- Employee data expansion panel -->
+              <mat-expansion-panel
+                *ngIf="((isIcrStatus(icr, 'Connected') || isIcrStatus(icr, 'Disconnected'))) && icr.connection">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <span class="label panel-header-label">Працівник, що виконував підключення:</span>
+                    <span class="value">
+                      {{ icr.connection.employee.firstName + ' ' + icr.connection.employee.lastName }}
+                    </span>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="expanded-content">
+                  <div class="card-row">
+                    <span class="label">Електронна пошта:</span>
+                    <span class="value">
+                      {{ icr.connection.employee.email }}
+                    </span>
+                  </div>
+
+                  <div class="card-row">
+                    <span class="label">Номер телефону:</span>
+                    <span class="value">
+                      {{ icr.connection.employee.phoneNumber }}
+                    </span>
+                  </div>
+                </div>
+              </mat-expansion-panel>
+
+              <!-- Card actions -->
+              <div class="card-actions">
+                <!-- "New" button -->
+                <ng-container *ngIf="isIcrStatus(icr, 'New')">
+                  <button mat-raised-button (click)="setIcrStatus(icr, 'Approved')">
+                    <mat-icon>check</mat-icon> Approve
+                  </button>
+                  <button mat-raised-button (click)="setIcrStatus(icr, 'Rejected')">
+                    <mat-icon>close</mat-icon> Reject
+                  </button>
+                </ng-container>
+
+                <!-- "Approved" button -->
+                <ng-container *ngIf="isIcrStatus(icr, 'Approved')">
+                  <button mat-raised-button (click)="setIcrStatus(icr, 'Connected')">
+                    <mat-icon>link</mat-icon> Connect
+                  </button>
+                </ng-container>
+
+                <!-- "Connected" button -->
+                <ng-container *ngIf="isIcrStatus(icr, 'Connected')">
+                  <button mat-raised-button (click)="setIcrStatus(icr, 'Disconnected')">
+                    <mat-icon>link_off</mat-icon> Disconnect
+                  </button>
+                </ng-container>
+              </div>
+
+
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Pagination -->
+        <mat-paginator [length]="totalIcrs" [pageSize]="paginationParameters.pageSize"
+          [pageIndex]="paginationParameters.pageNumber - 1" [pageSizeOptions]="[5, 10, 25, 50]"
+          (page)="onPageChange($event)">
+        </mat-paginator>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

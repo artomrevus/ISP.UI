@@ -1,0 +1,32 @@
+<div class="role-selection-container">
+    <div class="role-selection-content">
+      <h1 class="role-selection-title">Виберіть як хочете увійти</h1>
+      
+      <div class="role-buttons">
+        <button mat-raised-button class="role-button" (click)="navigateToRole('technical')">
+          <mat-icon>build</mat-icon>
+          <span>Технічний працівник</span>
+        </button>
+        
+        <button mat-raised-button class="role-button" (click)="navigateToRole('hr')">
+          <mat-icon>people</mat-icon>
+          <span>HR працівник</span>
+        </button>
+        
+        <button mat-raised-button class="role-button" (click)="navigateToRole('warehouse')">
+          <mat-icon>inventory</mat-icon>
+          <span>Працівник складу</span>
+        </button>
+        
+        <button mat-raised-button class="role-button" (click)="navigateToRole('manager')">
+          <mat-icon>business</mat-icon>
+          <span>Менеджер офісу</span>
+        </button>
+        
+        <button mat-raised-button class="role-button admin-button" (click)="navigateToRole('admin')">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <span>Адмін</span>
+        </button>
+      </div>
+    </div>
+  </div>

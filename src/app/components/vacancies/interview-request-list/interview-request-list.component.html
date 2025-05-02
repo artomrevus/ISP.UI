@@ -1,0 +1,11 @@
+<div class="interview-requests">
+    <app-interview-request-card *ngFor="let request of interviewRequests" 
+        [interviewRequest]="request" [employeeStatuses]="employeeStatuses"
+        [contractStatuses]="contractStatuses" [interviewResults]="interviewResults" 
+        [interviewRequestStatuses]="interviewRequestStatuses" [employeePositions]="employeePositions">
+    </app-interview-request-card>
+
+    <div *ngIf="interviewRequests.length === 0" class="no-requests">
+        Немає запитів на інтерв'ю для цієї вакансії
+    </div>
+</div>

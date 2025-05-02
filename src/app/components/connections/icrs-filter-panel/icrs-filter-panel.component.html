@@ -1,0 +1,212 @@
+<div class="filter-panel">
+    <div class="filter-header">
+      <div class="filter-title">
+        <mat-icon>filter_list</mat-icon>
+        <span>Фільтрація / сортування</span>
+      </div>
+      <div class="filter-info" *ngIf="activeFiltersCount > 0">
+        Активних фільтрів: {{ activeFiltersCount }}
+      </div>
+    </div>
+  
+    <form [formGroup]="filterForm">
+      <div class="filter-container">
+        <!-- Filter by internet tariffs -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Інтернет тарифи</mat-label>
+          <mat-select formControlName="internetTariffIds" multiple>
+            <mat-option *ngFor="let internetTariff of internetTariffs" [value]="internetTariff.id">
+              {{ internetTariff.name }} {{'(' + internetTariff.locationType.locationTypeName + ')'}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Filter by internet tariff statuses -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Статуси інтернет тарифів</mat-label>
+          <mat-select formControlName="internetTariffStatusIds" multiple>
+            <mat-option *ngFor="let internetTariffStatus of internetTariffStatuses" [value]="internetTariffStatus.id">
+              {{ internetTariffStatus.internetTariffStatusName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <!-- Filter by icr statuses -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Статуси запитів</mat-label>
+          <mat-select formControlName="internetConnectionRequestStatusIds" multiple>
+            <mat-option *ngFor="let requestStatus of requestStatuses" [value]="requestStatus.id">
+              {{ requestStatus.internetConnectionRequestStatusName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <!-- Filter by clients statuses -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Статуси клієнтів</mat-label>
+          <mat-select formControlName="clientStatusIds" multiple>
+            <mat-option *ngFor="let clientStatus of clientStatuses" [value]="clientStatus.id">
+              {{ clientStatus.clientStatusName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <!-- Filter by location types -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Типи локацій</mat-label>
+          <mat-select formControlName="locationTypeIds" multiple>
+            <mat-option *ngFor="let locationType of locationTypes" [value]="locationType.id">
+              {{ locationType.locationTypeName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <!-- Filter by cities -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Міста</mat-label>
+          <mat-select formControlName="cityIds" multiple>
+            <mat-option *ngFor="let city of cities" [value]="city.id">
+              {{ city.cityName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <!-- Filter by request number -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Номер запиту</mat-label>
+          <input matInput formControlName="numberContains">
+          <button mat-icon-button matSuffix *ngIf="filterForm.get('numberContains')?.value"
+                  (click)="filterForm.get('numberContains')?.setValue('')">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+  
+        <!-- Filter by request date (from) -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Дата запиту від</mat-label>
+          <input matInput [matDatepicker]="pickerFrom" formControlName="requestDateFrom">
+          <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+          <mat-datepicker #pickerFrom></mat-datepicker>
+          <button mat-icon-button matSuffix *ngIf="filterForm.get('requestDateFrom')?.value"
+                  (click)="filterForm.get('requestDateFrom')?.setValue(null)">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+  
+         <!-- Filter by request date (to) -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Дата запиту до</mat-label>
+          <input matInput [matDatepicker]="pickerTo" formControlName="requestDateTo">
+          <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
+          <mat-datepicker #pickerTo></mat-datepicker>
+          <button mat-icon-button matSuffix *ngIf="filterForm.get('requestDateTo')?.value"
+                  (click)="filterForm.get('requestDateTo')?.setValue(null)">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+  
+      <!-- Sorting -->
+      <div class="sort-container">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Сортувати за</mat-label>
+          <mat-select formControlName="sortBy">
+            <mat-option value="requestDate">Дата запиту</mat-option>
+            <mat-option value="connectionDate">Дата підключення</mat-option>
+            <mat-option value="connectionTotalPrice">Ціна підключення</mat-option>
+            <mat-option value="internetTariffPrice">Ціна інтернет тарифу</mat-option>
+            <mat-option value="internetTariffSpeed">Швидкість інтернету</mat-option>
+            <mat-option value="clientFirstName">Ім'я клієнта</mat-option>
+            <mat-option value="clientLastName">Прізвище клієнта</mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Напрямок</mat-label>
+          <mat-select formControlName="ascending">
+            <mat-option value=true>За зростанням</mat-option>
+            <mat-option value=false>За спаданням</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+  
+      <!-- Active filters -->
+      <div class="active-filters" *ngIf="activeFiltersCount > 0">
+        <h4>Активні фільтри:</h4>
+        <div class="chips-container">
+          <ng-container *ngFor="let tariff of getSelectedTariffs()">
+            <mat-chip (removed)="removeFilter('internetTariffIds', tariff.id)">
+              Тариф:  {{ tariff.name }} {{'(' + tariff.locationType.locationTypeName + ')'}}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+
+          <ng-container *ngFor="let tariffStatus of getSelectedTariffStatuses()">
+            <mat-chip (removed)="removeFilter('internetTariffStatusIds', tariffStatus.id)">
+              Тариф:  {{ tariffStatus.internetTariffStatusName }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+  
+          <ng-container *ngFor="let status of getSelectedRequestStatuses()">
+            <mat-chip (removed)="removeFilter('internetConnectionRequestStatusIds', status.id)">
+              Статус запиту: {{ status.internetConnectionRequestStatusName }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+  
+          <ng-container *ngFor="let status of getSelectedClientStatuses()">
+            <mat-chip (removed)="removeFilter('clientStatusIds', status.id)">
+              Статус клієнта: {{ status.clientStatusName }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+  
+          <ng-container *ngFor="let type of getSelectedLocationTypes()">
+            <mat-chip (removed)="removeFilter('locationTypeIds', type.id)">
+              Тип локації: {{ type.locationTypeName }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+  
+          <ng-container *ngFor="let city of getSelectedCities()">
+            <mat-chip (removed)="removeFilter('cityIds', city.id)">
+              Місто: {{ city.cityName }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+  
+          <ng-container *ngIf="filterForm.get('numberContains')?.value">
+            <mat-chip (removed)="filterForm.get('numberContains')?.setValue('')">
+              Номер містить: {{ filterForm.get('numberContains')?.value }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+  
+          <ng-container *ngIf="filterForm.get('requestDateFrom')?.value">
+            <mat-chip (removed)="filterForm.get('requestDateFrom')?.setValue(null)">
+              Дата від: {{ formatDate(filterForm.get('requestDateFrom')?.value) }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+  
+          <ng-container *ngIf="filterForm.get('requestDateTo')?.value">
+            <mat-chip (removed)="filterForm.get('requestDateTo')?.setValue(null)">
+              Дата до: {{ formatDate(filterForm.get('requestDateTo')?.value) }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+        </div>
+      </div>
+  
+      <!-- Action buttons -->
+      <div class="filter-actions">
+        <button mat-raised-button color="primary" (click)="applyFilters()">
+          <mat-icon>search</mat-icon> Застосувати фільтри
+        </button>
+        <button mat-stroked-button (click)="resetFilters()">
+          <mat-icon>clear</mat-icon> Скинути фільтри
+        </button>
+      </div>
+    </form>
+  </div>

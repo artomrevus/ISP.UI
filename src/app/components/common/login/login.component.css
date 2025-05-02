@@ -1,0 +1,99 @@
+.role-selection-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 10px;
+}
+
+.role-selection-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.role-selection-title {
+  color: black;
+  font-size: 28px;
+  margin-bottom: 40px;
+  font-weight: 500;
+  margin-top: 0px;
+}
+
+.role-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.role-button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 16px 24px;
+  font-size: 18px;
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.role-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.role-button mat-icon {
+  margin-right: 16px;
+  font-size: 24px;
+  height: 24px;
+  width: 24px;
+}
+
+.admin-button {
+  background-color: #424242;
+  color: white;
+}
+
+/* Медіа-запити для адаптивності */
+@media (max-width: 768px) {
+  .role-selection-content {
+    padding: 30px 20px;
+  }
+  
+  .role-selection-title {
+    font-size: 24px;
+    margin-bottom: 30px;
+  }
+  
+  .role-button {
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .role-selection-content {
+    padding: 20px 15px;
+  }
+  
+  .role-selection-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .role-button {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  
+  .role-button mat-icon {
+    margin-right: 12px;
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+  }
+}

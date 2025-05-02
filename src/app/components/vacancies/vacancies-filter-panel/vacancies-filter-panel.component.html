@@ -1,0 +1,213 @@
+<div class="filter-panel">
+    <div class="filter-header">
+        <div class="filter-title">
+            <mat-icon>filter_list</mat-icon>
+            <span>Фільтрація / сортування</span>
+        </div>
+        <div class="filter-info" *ngIf="activeFiltersCount > 0">
+            Активних фільтрів: {{ activeFiltersCount }}
+        </div>
+    </div>
+
+    <form [formGroup]="filterForm">
+        <div class="filter-container">
+            <!-- Filter by vacancy statuses -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Статуси вакансій</mat-label>
+                <mat-select formControlName="vacancyStatusIds" multiple>
+                    <mat-option *ngFor="let vacancyStatus of vacancyStatuses" [value]="vacancyStatus.id">
+                        {{ vacancyStatus.vacancyStatusName }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <!-- Filter by employee positions -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Посади працівників</mat-label>
+                <mat-select formControlName="employeePositionIds" multiple>
+                    <mat-option *ngFor="let employeePosition of employeePositions"
+                        [value]="employeePosition.id">
+                        {{ employeePosition.employeePositionName }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <!-- Filter by vacancy number -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Номер вакансії</mat-label>
+                <input matInput formControlName="numberContains">
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('numberContains')?.value"
+                    (click)="filterForm.get('numberContains')?.setValue('')">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <!-- Filter by appearance date (from) -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Дата появи вакансії від</mat-label>
+                <input matInput [matDatepicker]="pickerFrom" formControlName="appearanceDateFrom">
+                <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+                <mat-datepicker #pickerFrom></mat-datepicker>
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('appearanceDateFrom')?.value"
+                    (click)="filterForm.get('appearanceDateFrom')?.setValue(null)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <!-- Filter by appearance date (to) -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Дата появи вакансії до</mat-label>
+                <input matInput [matDatepicker]="pickerTo" formControlName="appearanceDateTo">
+                <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
+                <mat-datepicker #pickerTo></mat-datepicker>
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('appearanceDateTo')?.value"
+                    (click)="filterForm.get('appearanceDateTo')?.setValue(null)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <!-- NEW: Filter by monthly rate (from) -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Місячна ставка від</mat-label>
+                <input matInput type="number" formControlName="monthRateFrom">
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('monthRateFrom')?.value"
+                    (click)="filterForm.get('monthRateFrom')?.setValue(null)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <!-- NEW: Filter by monthly rate (to) -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Місячна ставка до</mat-label>
+                <input matInput type="number" formControlName="monthRateTo">
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('monthRateTo')?.value"
+                    (click)="filterForm.get('monthRateTo')?.setValue(null)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <!-- NEW: Filter by interview requests count (from) -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Кількість запитів на інтерв'ю від</mat-label>
+                <input matInput type="number" formControlName="interviewRequestsCountFrom" min="0">
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('interviewRequestsCountFrom')?.value"
+                    (click)="filterForm.get('interviewRequestsCountFrom')?.setValue(null)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <!-- NEW: Filter by interview requests count (to) -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Кількість запитів на інтерв'ю до</mat-label>
+                <input matInput type="number" formControlName="interviewRequestsCountTo" min="0">
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('interviewRequestsCountTo')?.value"
+                    (click)="filterForm.get('interviewRequestsCountTo')?.setValue(null)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+
+        <!-- Sorting -->
+        <div class="sort-container">
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Сортувати за</mat-label>
+                <mat-select formControlName="sortBy">
+                    <mat-option value="appearanceDate">Дата появи вакансії</mat-option>
+                    <mat-option value="monthRate">Місячна ставка</mat-option>
+                    <mat-option value="interviewRequestsCount">Кількість запитів на інтерв'ю</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Напрямок</mat-label>
+                <mat-select formControlName="ascending">
+                    <mat-option [value]="true">За зростанням</mat-option>
+                    <mat-option [value]="false">За спаданням</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <!-- Active filters -->
+        <div class="active-filters" *ngIf="activeFiltersCount > 0">
+            <h4>Активні фільтри:</h4>
+            <div class="chips-container">
+                <ng-container *ngFor="let vacancyStatus of getSelectedVacancyStatuses()">
+                    <mat-chip (removed)="removeFilter('vacancyStatusIds', vacancyStatus.id)">
+                        Статус вакансії: {{ vacancyStatus.vacancyStatusName }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <ng-container *ngFor="let employeePosition of getSelectedEmployeePositions()">
+                    <mat-chip (removed)="removeFilter('employeePositionIds', employeePosition.id)">
+                        Посада працівника: {{ employeePosition.employeePositionName }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <ng-container *ngIf="filterForm.get('numberContains')?.value">
+                    <mat-chip (removed)="filterForm.get('numberContains')?.setValue('')">
+                        Номер містить: {{ filterForm.get('numberContains')?.value }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <ng-container *ngIf="filterForm.get('appearanceDateFrom')?.value">
+                    <mat-chip (removed)="filterForm.get('appearanceDateFrom')?.setValue(null)">
+                        Дата появи від: {{ formatDate(filterForm.get('appearanceDateFrom')?.value) }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <ng-container *ngIf="filterForm.get('appearanceDateTo')?.value">
+                    <mat-chip (removed)="filterForm.get('appearanceDateTo')?.setValue(null)">
+                        Дата появи до: {{ formatDate(filterForm.get('appearanceDateTo')?.value) }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <!-- NEW: Monthly rate from filter chip -->
+                <ng-container *ngIf="filterForm.get('monthRateFrom')?.value">
+                    <mat-chip (removed)="filterForm.get('monthRateFrom')?.setValue(null)">
+                        Місячна ставка від: {{ filterForm.get('monthRateFrom')?.value }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <!-- NEW: Monthly rate to filter chip -->
+                <ng-container *ngIf="filterForm.get('monthRateTo')?.value">
+                    <mat-chip (removed)="filterForm.get('monthRateTo')?.setValue(null)">
+                        Місячна ставка до: {{ filterForm.get('monthRateTo')?.value }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <!-- NEW: Interview requests count from filter chip -->
+                <ng-container *ngIf="filterForm.get('interviewRequestsCountFrom')?.value">
+                    <mat-chip (removed)="filterForm.get('interviewRequestsCountFrom')?.setValue(null)">
+                        Кількість запитів від: {{ filterForm.get('interviewRequestsCountFrom')?.value }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <!-- NEW: Interview requests count to filter chip -->
+                <ng-container *ngIf="filterForm.get('interviewRequestsCountTo')?.value">
+                    <mat-chip (removed)="filterForm.get('interviewRequestsCountTo')?.setValue(null)">
+                        Кількість запитів до: {{ filterForm.get('interviewRequestsCountTo')?.value }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+            </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="filter-actions">
+            <button mat-raised-button color="primary" (click)="applyFilters()">
+                <mat-icon>search</mat-icon> Застосувати фільтри
+            </button>
+            <button mat-stroked-button (click)="resetFilters()">
+                <mat-icon>clear</mat-icon> Скинути фільтри
+            </button>
+        </div>
+    </form>
+</div>

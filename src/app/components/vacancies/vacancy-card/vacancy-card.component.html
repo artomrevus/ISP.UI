@@ -1,0 +1,68 @@
+<mat-card class="vacancy-card">
+    <div class="card-header">
+        <div>
+            <mat-chip-set>
+                <mat-chip>
+                    {{ vacancy.vacancyStatus.vacancyStatusName }}
+                </mat-chip>
+            </mat-chip-set>
+        </div>
+        <div class="vacancy-number">
+            <span class="number-label">Вакансія #</span>{{ vacancy.number }}
+        </div>
+    </div>
+
+    <mat-card-content class="vacancy-content">
+        <div class="vacancy-info-column">
+            <div class="vacancy-field">
+                <div class="field-label position-name">Позиція:</div>
+                <div class="field-value position-name">{{ vacancy.employeePosition.employeePositionName }}</div>
+            </div>
+            <div class="vacancy-field">
+                <div class="field-label appearance-dete">Дата появи:</div>
+                <div class="field-value appearance-dete">{{ vacancy.appearanceDate | date:'dd.MM.yyyy' }}</div>
+            </div>
+            <div class="vacancy-field">
+                <div class="field-label salary">Місячна ставка:</div>
+                <div class="field-value salary">{{ vacancy.monthRate | currency }}</div>
+            </div>
+        </div>
+        
+        <div class="vacancy-description">
+            <div class="field-label">Опис вакансії:</div>
+            <p class="description-text">{{ vacancy.description }}</p>
+        </div>
+    </mat-card-content>
+
+    <mat-card-footer *ngIf="vacancy.vacancyStatus.vacancyStatusName !== VacancyStatus.DRAFT" class="card-footer">
+        <mat-expansion-panel class="interview-panel">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    <mat-icon>people</mat-icon> Запити на інтерв'ю
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <app-interview-request-list [vacancyId]="vacancy.id" [vacancyStatuses]="vacancyStatuses" [employeePositions]="employeePositions" 
+            [contractStatuses]="contractStatuses" [interviewResults]="interviewResults" 
+            [interviewRequestStatuses]="interviewRequestStatuses" [employeeStatuses]="employeeStatuses"></app-interview-request-list>
+        </mat-expansion-panel>
+    </mat-card-footer>
+
+    <mat-card-actions align="end" *ngIf="vacancy.vacancyStatus.vacancyStatusName === VacancyStatus.DRAFT" class="card-actions">
+        <button mat-raised-button color="accent" (click)="editVacancy()">
+            <mat-icon>edit</mat-icon> Редагувати
+        </button>
+        <button mat-raised-button color="primary" (click)="setVacancyStatus(VacancyStatus.ACTIVE)">
+            <mat-icon>publish</mat-icon> Опублікувати вакансію
+        </button>
+    </mat-card-actions>
+
+    <mat-card-actions align="end" *ngIf="vacancy.vacancyStatus.vacancyStatusName === VacancyStatus.ACTIVE" class="card-actions">
+        <button mat-raised-button color="accent" (click)="setVacancyStatus(VacancyStatus.CLOSED)">
+            <mat-icon>check</mat-icon> Закрити вакансію
+        </button>
+        <button mat-raised-button color="warn" (click)="setVacancyStatus(VacancyStatus.CANCELED)">
+            <mat-icon>cancel</mat-icon> Відмінити вакансію
+        </button>
+    </mat-card-actions>
+</mat-card>

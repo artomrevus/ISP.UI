@@ -1,0 +1,195 @@
+<div class="filter-panel">
+    <div class="filter-header">
+      <div class="filter-title">
+        <mat-icon>filter_list</mat-icon>
+        <span>Фільтрація</span>
+      </div>
+      <div class="filter-info" *ngIf="activeFiltersCount > 0">
+        Активних фільтрів: {{ activeFiltersCount }}
+      </div>
+    </div>
+  
+    <form [formGroup]="filterForm">
+      <div class="filter-container">
+        <!-- Filter by offices -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Офіси</mat-label>
+          <mat-select formControlName="officeIds" multiple>
+            <mat-option *ngFor="let office of offices" [value]="office.id">
+              {{ office.address }} {{`(${office.city.cityName})`}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <!-- Filter by cities -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Міста</mat-label>
+          <mat-select formControlName="cityIds" multiple>
+            <mat-option *ngFor="let city of cities" [value]="city.id">
+              {{ city.cityName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <!-- Filter by username -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Ім'я користувача</mat-label>
+          <input matInput formControlName="userNameContains">
+          <button mat-icon-button matSuffix *ngIf="filterForm.get('userNameContains')?.value"
+                (click)="filterForm.get('userNameContains')?.setValue('')">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <!-- Filter by role -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Роль користувача</mat-label>
+          <input matInput formControlName="roleContains">
+          <button mat-icon-button matSuffix *ngIf="filterForm.get('roleContains')?.value"
+                (click)="filterForm.get('roleContains')?.setValue('')">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <!-- Filter by action on -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Дія над</mat-label>
+          <input matInput formControlName="actionOnContains">
+          <button mat-icon-button matSuffix *ngIf="filterForm.get('actionOnContains')?.value"
+                (click)="filterForm.get('actionOnContains')?.setValue('')">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+
+          <!-- Filter by action -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Дія</mat-label>
+          <input matInput formControlName="actionContains">
+          <button mat-icon-button matSuffix *ngIf="filterForm.get('actionContains')?.value"
+                (click)="filterForm.get('actionContains')?.setValue('')">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+  
+        <!-- Filter by start date -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Дата від</mat-label>
+          <input matInput [matDatepicker]="startDatePicker" formControlName="startDate">
+          <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #startDatePicker></mat-datepicker>
+          <button mat-icon-button matSuffix *ngIf="filterForm.get('startDate')?.value"
+                  (click)="filterForm.get('startDate')?.setValue(null)">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+  
+         <!-- Filter by start time -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Час від</mat-label>
+          <input matInput type="time" formControlName="startTime">
+          <button mat-icon-button matSuffix *ngIf="filterForm.get('startTime')?.value"
+                  (click)="filterForm.get('startTime')?.setValue(null)">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+  
+       <!-- Filter by end date -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Дата до</mat-label>
+          <input matInput [matDatepicker]="endDatePicker" formControlName="endDate">
+          <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #endDatePicker></mat-datepicker>
+          <button mat-icon-button matSuffix *ngIf="filterForm.get('endDate')?.value"
+                  (click)="filterForm.get('endDate')?.setValue(null)">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+  
+         <!-- Filter by end time -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Час до</mat-label>
+          <input matInput type="time" formControlName="endTime">
+          <button mat-icon-button matSuffix *ngIf="filterForm.get('endTime')?.value"
+                  (click)="filterForm.get('endTime')?.setValue(null)">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+
+      <!-- Active filters -->
+      <div class="active-filters" *ngIf="activeFiltersCount > 0">
+        <h4>Активні фільтри:</h4>
+        <div class="chips-container">
+          <ng-container *ngFor="let office of getSelectedOffices()">
+            <mat-chip (removed)="removeFilter('officeIds', office.id)">
+              Офіс:  {{ office.address }} {{`(${office.city.cityName})`}}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+  
+          <ng-container *ngFor="let city of getSelectedCities()">
+            <mat-chip (removed)="removeFilter('cityIds', city.id)">
+              Місто: {{ city.cityName }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+  
+          <ng-container *ngIf="filterForm.get('userNameContains')?.value">
+            <mat-chip (removed)="filterForm.get('userNameContains')?.setValue('')">
+                Ім'я користувача: {{ filterForm.get('userNameContains')?.value }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+
+          <ng-container *ngIf="filterForm.get('roleContains')?.value">
+            <mat-chip (removed)="filterForm.get('roleContains')?.setValue('')">
+                Роль користувача: {{ filterForm.get('roleContains')?.value }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+
+          <ng-container *ngIf="filterForm.get('actionOnContains')?.value">
+            <mat-chip (removed)="filterForm.get('actionOnContains')?.setValue('')">
+                Дія над: {{ filterForm.get('actionOnContains')?.value }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+
+          <ng-container *ngIf="filterForm.get('actionContains')?.value">
+            <mat-chip (removed)="filterForm.get('actionContains')?.setValue('')">
+                Дія: {{ filterForm.get('actionContains')?.value }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+  
+          <ng-container *ngIf="hasStartDateTime()">
+            <mat-chip class="multiline-chip" (removed)="clearStartDateTime()">
+              <span class="chip-label" matTooltip="Дата та час від: {{ formatStartDateTime() }}">
+                Дата та час від: {{ formatStartDateTime() }}
+              </span>
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+  
+          <ng-container *ngIf="hasEndDateTime()">
+            <mat-chip class="multiline-chip" (removed)="clearEndDateTime()">
+              <span class="chip-label" matTooltip="Дата та час до: {{ formatEndDateTime() }}">
+                Дата та час до: {{ formatEndDateTime() }}
+              </span>
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+        </div>
+      </div>
+  
+      <!-- Action buttons -->
+      <div class="filter-actions">
+        <button mat-raised-button color="primary" (click)="applyFilters()">
+          <mat-icon>search</mat-icon> Застосувати фільтри
+        </button>
+        <button mat-stroked-button (click)="resetFilters()">
+          <mat-icon>clear</mat-icon> Скинути фільтри
+        </button>
+      </div>
+    </form>
+  </div>

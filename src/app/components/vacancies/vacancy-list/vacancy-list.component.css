@@ -1,0 +1,53 @@
+.vacancies-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 100px);
+  padding: 20px;
+  padding-bottom: 0px;
+  box-sizing: border-box;
+}
+
+.vacancies-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 10px;
+  margin-bottom: 15px;
+  margin-top: 0px;
+}
+
+.vacancies-header h1 {
+  font-size: 24px;
+  font-weight: 500;
+  color: #3f51b5;
+}
+
+.vacancies-header .actions {
+  display: flex;
+  gap: 8px;
+}
+
+.vacancies-sidenav-container {
+  flex: 1;
+  height: 100%;
+}
+
+.filters-sidenav {
+  width: 450px;
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-right: 1px solid #e0e0e0;
+}
+
+.vacancies-content {
+  padding: 16px;
+  overflow-y: auto;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.vacancies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

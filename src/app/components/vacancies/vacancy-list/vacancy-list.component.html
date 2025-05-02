@@ -1,0 +1,55 @@
+<!-- Header -->
+<app-human-resource-header></app-human-resource-header>
+
+<!-- Body -->
+<div class="vacancies-container">
+
+    <!-- Body header -->
+    <div class="vacancies-header">
+        <h1>Вакансії</h1>
+
+        <div class="actions">
+            <button mat-raised-button color="primary" (click)="openVacancyForm()">
+                <mat-icon>add</mat-icon>
+                Створити вакансію
+            </button>
+            <button mat-raised-button (click)="toggleFilterPanel()">
+                <mat-icon>filter_list</mat-icon>
+                Фільтрувати / Сортувати
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Body container -->
+    <mat-sidenav-container class="vacancies-sidenav-container">
+
+        <!-- Filtration -->
+        <mat-sidenav mode="side" [opened]="isFilterPanelVisible" class="filters-sidenav">
+            <app-vacancies-filter-panel [vacancyStatuses]="vacancyStatuses" [employeePositions]="employeePositions"
+                (filtersChanged)="onFiltersChanged($event)">
+            </app-vacancies-filter-panel>
+        </mat-sidenav>
+
+        <mat-sidenav-content>
+            <div class="vacancies-content">
+
+                <!-- Vacancies cards -->
+                <div class="vacancies-list">
+                    <app-vacancy-card *ngFor="let vacancy of vacancies" [vacancy]="vacancy"
+                        [vacancyStatuses]="vacancyStatuses" [employeePositions]="employeePositions" 
+                        [contractStatuses]="contractStatuses" [interviewResults]="interviewResults" 
+                        [interviewRequestStatuses]="interviewRequestStatuses" [employeeStatuses]="employeeStatuses">
+                    </app-vacancy-card>
+                </div>
+
+                <!-- Pagination -->
+                <mat-paginator [length]="totalVacancies" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50]"
+                    (page)="onPageChange($event)">
+                </mat-paginator>
+            </div>
+            
+        </mat-sidenav-content>
+
+    </mat-sidenav-container>
+</div>

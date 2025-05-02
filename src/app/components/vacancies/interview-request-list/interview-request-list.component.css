@@ -1,0 +1,11 @@
+.interview-requests {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .no-requests {
+    padding: 16px;
+    text-align: center;
+    color: #666;
+  }

@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>Додати результат інтерв'ю</h2>
+
+<form [formGroup]="interviewForm" (ngSubmit)="onSubmit()">
+    <mat-dialog-content>
+        <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Результат</mat-label>
+            <mat-select formControlName="result" required>
+                <mat-option [value]="InterviewResult.PASSED">Успішно</mat-option>
+                <mat-option [value]="InterviewResult.FAILED">Не успішно</mat-option>
+            </mat-select>
+            <mat-error *ngIf="interviewForm.get('result')?.hasError('required')">
+                Результат обов'язковий
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Дата інтерв'ю</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="date" required>
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="interviewForm.get('date')?.hasError('required')">
+                Дата інтерв'ю обов'язкова
+            </mat-error>
+        </mat-form-field>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button mat-dialog-close>Скасувати</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="interviewForm.invalid">
+            Зберегти
+        </button>
+    </mat-dialog-actions>
+</form>

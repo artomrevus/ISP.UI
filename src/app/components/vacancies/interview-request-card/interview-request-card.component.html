@@ -1,0 +1,136 @@
+<mat-card class="request-card">
+    <div class="card-header">
+        <div>
+            <mat-chip-set>
+                <mat-chip>
+                    {{ interviewRequest.interviewRequestStatus.interviewRequestStatusName }}
+                </mat-chip>
+            </mat-chip-set>
+        </div>
+        <div class="request-number">
+            <span class="number-label">Запит #</span>{{ interviewRequest.number }}
+        </div>
+    </div>
+
+    <mat-card-content class="request-content">
+        <div class="request-info-column">
+            <div class="request-field">
+                <div class="field-label">Дата подання:</div>
+                <div class="field-value">{{ interviewRequest.applicationDate | date:'dd.MM.yyyy' }}</div>
+            </div>
+            <div class="request-field">
+                <div class="field-label">Дата розгляду:</div>
+                <div class="field-value">{{ interviewRequest.considerationDate ? (interviewRequest.considerationDate | date:'dd.MM.yyyy') : 'Ще не розглянуто' }}</div>
+            </div>
+            <div class="request-field">
+                <div class="field-label">Кандидат:</div>
+                <div class="field-value">{{ interviewRequest.candidate.firstName }} {{ interviewRequest.candidate.lastName }}</div>
+            </div>
+        </div>
+        
+        <div class="candidate-details-section">
+            <mat-expansion-panel class="details-panel">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <mat-icon>person</mat-icon> Деталі кандидата
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="candidate-details">
+                    <div class="details-field">
+                        <div class="field-label">Електронна пошта:</div>
+                        <div class="field-value">{{ interviewRequest.candidate.email }}</div>
+                    </div>
+                    <div class="details-field">
+                        <div class="field-label">Номер телефону:</div>
+                        <div class="field-value">{{ interviewRequest.candidate.phoneNumber }}</div>
+                    </div>
+                </div>
+            </mat-expansion-panel>
+        </div>
+
+        <div class="interview-details-section" *ngIf="interviewRequest.interviewRequestStatus.interviewRequestStatusName === InterviewRequestStatus.ACCEPTED">
+            <mat-expansion-panel class="details-panel">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <mat-icon>event</mat-icon> Інтерв'ю: {{ interviewRequest.interview?.interviewResult?.interviewResultName || 'Не проведено' }}
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="interview-details" *ngIf="interviewRequest.interview">
+                    <div class="details-field">
+                        <div class="field-label">Дата інтерв'ю:</div>
+                        <div class="field-value">{{ interviewRequest.interview.date | date:'dd.MM.yyyy' }}</div>
+                    </div>
+                </div>
+
+                <mat-action-row *ngIf="!interviewRequest.interview">
+                    <button mat-raised-button color="primary" (click)="addInterviewResult()">
+                        <mat-icon>add</mat-icon> Додати результат інтерв'ю
+                    </button>
+                </mat-action-row>
+            </mat-expansion-panel>
+        </div>
+
+        <div class="contract-details-section" *ngIf="isShowContractPanel()">
+            <mat-expansion-panel class="details-panel">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <mat-icon>description</mat-icon> Контракт: {{ interviewRequest.interview?.contract?.number || 'Не укладено' }}
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="contract-details" *ngIf="interviewRequest.interview?.contract">
+                    <div class="details-field">
+                        <div class="field-label">Статус:</div>
+                        <div class="field-value">{{ interviewRequest.interview?.contract?.contractStatus?.contractStatusName }}</div>
+                    </div>
+                    <div class="details-field">
+                        <div class="field-label">Офіс:</div>
+                        <div class="field-value">{{ `${interviewRequest.interview?.contract?.employee?.office?.address} (${interviewRequest.interview?.contract?.employee?.office?.city?.cityName})` }}</div>
+                    </div>
+                    <div class="details-field">
+                        <div class="field-label">Місячна ставка:</div>
+                        <div class="field-value">{{ interviewRequest.interview?.contract?.monthRate | currency }}</div>
+                    </div>
+                    <div class="details-field">
+                        <div class="field-label">Дата укладання:</div>
+                        <div class="field-value">{{ interviewRequest.interview?.contract?.conclusionDate | date:'dd.MM.yyyy' }}</div>
+                    </div>
+                    <div class="details-field">
+                        <div class="field-label">Дата початку дії:</div>
+                        <div class="field-value">{{ interviewRequest.interview?.contract?.startDate | date:'dd.MM.yyyy' }}</div>
+                    </div>
+                    <div class="details-field">
+                        <div class="field-label">Дата завершення дії:</div>
+                        <div class="field-value">{{ interviewRequest.interview?.contract?.endDate | date:'dd.MM.yyyy' }}</div>
+                    </div>
+                </div>
+
+                <mat-action-row *ngIf="!interviewRequest.interview?.contract">
+                    <button mat-raised-button color="primary" (click)="addContract()">
+                        <mat-icon>add</mat-icon> Додати контракт
+                    </button>
+                </mat-action-row>
+
+                <mat-action-row *ngIf="interviewRequest.interview?.contract?.contractStatus?.contractStatusName === ContractStatus.ACTIVE">
+                    <button *ngIf="isContractExpired()" mat-raised-button color="warn" (click)="finishContract(ContractStatus.EXPIRED)">
+                        <mat-icon>timelapse</mat-icon> Завершити контракт
+                    </button>
+                    <button mat-raised-button color="warn" (click)="finishContract(ContractStatus.CANCELED)">
+                        <mat-icon>insert_page_break</mat-icon> Розірвати контракт
+                    </button>
+                </mat-action-row>
+            </mat-expansion-panel>
+        </div>
+    </mat-card-content>
+
+    <mat-card-actions align="end" *ngIf="interviewRequest.interviewRequestStatus.interviewRequestStatusName === InterviewRequestStatus.PENDING" class="card-actions">
+        <button mat-raised-button color="primary" (click)="setInterviewRequestStatus(InterviewRequestStatus.ACCEPTED)">
+            <mat-icon>check</mat-icon> Прийняти
+        </button>
+        <button mat-raised-button color="warn" (click)="setInterviewRequestStatus(InterviewRequestStatus.REJECTED)">
+            <mat-icon>close</mat-icon> Відхилити
+        </button>
+    </mat-card-actions>
+</mat-card>

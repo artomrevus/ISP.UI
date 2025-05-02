@@ -1,0 +1,93 @@
+<div class="monitoring-container">
+  <!-- Body header -->
+  <div class="monitoring-header">
+    <h1>Моніторинг активності користувачів</h1>
+    <button mat-raised-button color="primary" (click)="toggleFilterPanel()">
+      <mat-icon>filter_list</mat-icon>
+        Фільтрувати
+    </button>
+  </div>
+
+  <mat-sidenav-container class="monitoring-sidenav-container">
+      <mat-sidenav mode="side" [opened]="isFilterPanelVisible" class="filters-sidenav">
+        <app-monitoring-filter-panel
+        [offices]="offices"
+        [cities]="cities"
+        (filtersChanged)="onFiltersChanged($event)">
+        </app-monitoring-filter-panel>
+      </mat-sidenav>
+
+      <mat-sidenav-content>
+          <div class="monitoring-content">
+            <div *ngIf="isLoading" class="loading-spinner">
+              <mat-spinner diameter="40"></mat-spinner>
+            </div>
+        
+            <div *ngIf="!isLoading && activities.length === 0" class="no-activities">
+              <p>Активності не знайдено.</p>
+            </div>
+        
+            <div *ngIf="!isLoading && activities.length > 0" class="activities-list">
+              <mat-card *ngFor="let activity of activities" class="activity-card">
+                <mat-card-header>
+                  <div class="chip-container">
+                    <mat-chip-listbox>
+                      <mat-chip>
+                        {{ activity.role }} 
+                      </mat-chip>
+                    </mat-chip-listbox>
+                  </div>
+                  <div class="user-container">
+                    <div class="activity-user">
+                      <mat-icon>person</mat-icon>
+                      <span>{{ activity.userName }}</span>
+                    </div>
+                  </div>
+                  <div class="chip-container">
+                    <mat-chip-listbox>
+                      <mat-chip>
+                        {{ formatDateTime(activity.timestamp) }}
+                      </mat-chip>
+                    </mat-chip-listbox>
+                  </div>
+                </mat-card-header>
+        
+                <mat-card-content>
+                  <div class="activity-info">
+                    <div class="activity-action">
+                      <span class="label">Виконана дія:</span>
+                      <span class="value">{{ activity.action }}</span>
+                    </div>
+                    <div class="activity-object">
+                      <span class="label">Дія виконана над:</span>
+                      <span class="value">{{ activity.actionOn }}</span>
+                    </div>
+                  </div>
+        
+                  <mat-expansion-panel class="details-panel">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        <mat-icon>info</mat-icon>
+                        Деталі
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <div class="details-content">
+                      <pre>{{ formatDetails(activity.details) }}</pre>
+                    </div>
+                  </mat-expansion-panel>
+                </mat-card-content>
+              </mat-card>
+            </div>
+        
+            <mat-paginator
+              *ngIf="totalActivities > 0"
+              [length]="totalActivities"
+              [pageSize]="pageSize"
+              [pageIndex]="pageNumber - 1"
+              [pageSizeOptions]="[5, 10, 25, 50]"
+              (page)="onPageChange($event)">
+            </mat-paginator>
+          </div>
+      </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>
