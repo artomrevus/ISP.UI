@@ -1,0 +1,23 @@
+.purchase-list-container {
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.sort-controls {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.purchases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(1400px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}

@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ClientStatusDto, FullClientStatus } from '../../models/isp/client-status.models';
 import { firstValueFrom, Observable } from 'rxjs';

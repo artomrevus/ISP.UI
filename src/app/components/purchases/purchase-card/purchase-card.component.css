@@ -1,0 +1,54 @@
+.purchase-card {
+    margin-bottom: 16px;
+}
+
+.card-actions {
+    margin-left: auto;
+}
+
+.purchase-details {
+    margin: 16px 0;
+}
+
+.detail-row {
+    display: flex;
+    margin-bottom: 8px;
+}
+
+.label {
+    font-weight: 500;
+    width: 100px;
+}
+
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 16px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.status-requested {
+    color: #ff9800;
+}
+
+.status-approved {
+    color: #2196f3;
+}
+
+.status-in-transit {
+    color: #9c27b0;
+}
+
+.status-delivered {
+    color: #4caf50;
+}
+
+.status-canceled {
+    color: #f44336;
+}

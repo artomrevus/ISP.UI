@@ -9,6 +9,8 @@ import { VacancyListComponent } from './components/vacancies/vacancy-list/vacanc
 import { authHumanResourceGuard } from './guards/auth-human-resource.guard';
 import { HumanResourceMonitoringComponent } from './components/human-resource/human-resource-monitoring/human-resource-monitoring.component';
 import { LoginOfficeManagerComponent } from './components/office-manager/login-office-manager/login-office-manager.component';
+import {PurchaseListComponent} from "./components/purchases/purchase-list/purchase-list.component";
+import {authOfficeManagerGuard} from "./guards/auth-office-manager.guard";
 
 export const routes: Routes = [
     {
@@ -51,6 +53,11 @@ export const routes: Routes = [
     {
         path: 'office-manager/login',
         component: LoginOfficeManagerComponent
+    },
+    {
+        path: 'office-manager/purchases',
+        component: PurchaseListComponent,
+        canActivate: [authOfficeManagerGuard]
     },
     {
         path: '**',

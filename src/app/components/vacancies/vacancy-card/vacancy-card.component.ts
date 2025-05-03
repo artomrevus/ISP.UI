@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -58,7 +58,8 @@ export class VacancyCardComponent {
       // Find status 
       const updatedStatus = this.vacancyStatuses.find(x => x.vacancyStatusName === vacancyStatus);
       if (!updatedStatus) {
-        throw new Error('Vacancy status not found.');
+        console.error('Vacancy status not found.');
+        return;
       }
 
       // Create update vacancy dto

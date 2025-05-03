@@ -15,8 +15,8 @@ export class OfficesService {
     private citiesService: CitiesService) {
   }
 
-  getById(id: number): Observable<OfficeDto> {
-    return this.http.get<OfficeDto>(`${environment.apiBaseUrl}/offices/${id}`);
+  getById(id: number): Promise<OfficeDto> {
+    return firstValueFrom(this.http.get<OfficeDto>(`${environment.apiBaseUrl}/offices/${id}`));
   }
 
   async get(): Promise<OfficeDto[]> {    
@@ -25,7 +25,7 @@ export class OfficesService {
 
   async getByIdFull(id: number): Promise<FullOffice> {
     
-    const officeDto = await firstValueFrom(this.getById(id));
+    const officeDto = await this.getById(id);
     const cityDto = await firstValueFrom(this.citiesService.getById(officeDto.cityId));
 
     const fullOffice = {

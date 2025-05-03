@@ -1,0 +1,49 @@
+<div class="purchase-list-container">
+    <div class="header">
+        <h1>Purchases</h1>
+        <button mat-raised-button color="primary" (click)="openAddPurchaseDialog()">
+            <mat-icon>add</mat-icon> New Purchase
+        </button>
+    </div>
+
+    <!-- <app-filters
+            (filterChange)="onFilterChange($event)"
+            [currentFilter]="filterParams">
+    </app-filters> -->
+
+<!--    <div class="sort-controls">-->
+<!--        <mat-form-field>-->
+<!--            <mat-label>Sort by</mat-label>-->
+<!--            <mat-select [(value)]="sortOptions.sortBy" (selectionChange)="onSortChange()">-->
+<!--                <mat-option value="date">Date</mat-option>-->
+<!--                <mat-option value="totalPrice">Total Price</mat-option>-->
+<!--                <mat-option value="purchaseEquipmentsCount">Equipment Count</mat-option>-->
+<!--            </mat-select>-->
+<!--        </mat-form-field>-->
+
+<!--        <mat-button-toggle-group [(value)]="sortOptions.ascending" (change)="onSortChange()">-->
+<!--            <mat-button-toggle value=true>-->
+<!--                <mat-icon>arrow_upward</mat-icon>-->
+<!--            </mat-button-toggle>-->
+<!--            <mat-button-toggle value=false>-->
+<!--                <mat-icon>arrow_downward</mat-icon>-->
+<!--            </mat-button-toggle>-->
+<!--        </mat-button-toggle-group>-->
+<!--    </div>-->
+
+    <div class="purchases-grid">
+        <app-purchase-card
+                *ngFor="let purchase of purchases"
+                [purchase]="purchase"
+                (statusChange)="onStatusChange($event)"
+                (purchaseUpdated)="loadPurchases()">
+        </app-purchase-card>
+    </div>
+
+    <mat-paginator
+            [length]="totalItems"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="[5, 10, 25, 50]"
+            (page)="onPageChange($event)">
+    </mat-paginator>
+</div>

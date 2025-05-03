@@ -19,6 +19,10 @@ export class EquipmentsService {
     return this.http.get<EquipmentDto>(`${environment.apiBaseUrl}/equipments/${id}`);
   }
 
+  get(): Promise<EquipmentDto[]> {
+    return firstValueFrom(this.http.get<EquipmentDto[]>(`${environment.apiBaseUrl}/equipments/all`));
+  }
+
   async getByIdFull(id: number): Promise<FullEquipment> {
     const equipmentDto = await firstValueFrom(this.getById(id));
     const fullEquipmentType = await this.equipmentTypesService.getByIdFull(equipmentDto.equipmentTypeId);

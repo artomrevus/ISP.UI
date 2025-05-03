@@ -1,5 +1,5 @@
-import { MAT_SNACK_BAR_DATA, MatSnackBar, MatSnackBarModule, MatSnackBarRef } from '@angular/material/snack-bar';
-import { Component, NgModule, Injectable, Inject } from '@angular/core';
+import { MAT_SNACK_BAR_DATA, MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,7 +15,6 @@ export class CopySnackbarComponent {
   constructor(
     private clipboard: Clipboard,
     private snackBar: MatSnackBar,
-    private snackBarRef: MatSnackBarRef<CopySnackbarComponent>,
     @Inject(MAT_SNACK_BAR_DATA) public data: string
   ) {}
 

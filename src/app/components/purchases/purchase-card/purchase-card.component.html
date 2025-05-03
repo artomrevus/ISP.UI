@@ -1,0 +1,83 @@
+<mat-card class="purchase-card">
+    <mat-card-header>
+        <mat-card-title>
+            <span *ngIf="!isEditing">Purchase #{{ purchase.number }}</span>
+            <span *ngIf="isEditing">Edit Purchase</span>
+        </mat-card-title>
+        <mat-card-subtitle>
+            <span [ngClass]="getStatusClass()">{{ getStatusName() }}</span>
+        </mat-card-subtitle>
+        <div class="card-actions">
+            <button mat-icon-button *ngIf="!isEditing" (click)="toggleEdit()">
+                <mat-icon>edit</mat-icon>
+            </button>
+        </div>
+    </mat-card-header>
+
+    <mat-card-content>
+        <div *ngIf="!isEditing" class="purchase-details">
+            <div class="detail-row">
+                <span class="label">Supplier:</span>
+                <span>{{ getSupplier()?.name }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Date:</span>
+                <span>{{ purchase.date | date:'mediumDate' }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Total Price:</span>
+                <span>{{ purchase.totalPrice | currency }}</span>
+            </div>
+        </div>
+
+        <form *ngIf="isEditing" [formGroup]="editForm" class="edit-form">
+            <mat-form-field appearance="outline">
+                <mat-label>Supplier</mat-label>
+                <mat-select formControlName="supplierId">
+                    <mat-option *ngFor="let supplier of suppliers" [value]="supplier.id">
+                        {{ supplier.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Date</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="date">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+
+            <div class="form-actions">
+                <button mat-button color="warn" (click)="cancelEdit()">Cancel</button>
+                <button mat-raised-button color="primary" [disabled]="editForm.invalid" (click)="saveChanges()">Save</button>
+            </div>
+        </form>
+
+        <app-purchase-equipment-list
+                [purchaseId]="purchase.id"
+                [isDelivered]="getStatusName() === PurchaseStatus.DELIVERED">
+        </app-purchase-equipment-list>
+    </mat-card-content>
+
+    <mat-card-actions *ngIf="!isEditing" align="end">
+        <ng-container [ngSwitch]="getStatusName()">
+            <!-- Requested status -->
+            <ng-container *ngSwitchCase="PurchaseStatus.REQUESTED">
+                <button mat-button color="primary" (click)="changeStatus(PurchaseStatus.APPROVED)">Approve</button>
+                <button mat-button color="warn" (click)="changeStatus(PurchaseStatus.CANCELED)">Cancel</button>
+            </ng-container>
+
+            <!-- Approved status -->
+            <ng-container *ngSwitchCase="PurchaseStatus.APPROVED">
+                <button mat-button color="primary" (click)="changeStatus(PurchaseStatus.IN_TRANSIT)">In Transit</button>
+                <button mat-button color="warn" (click)="changeStatus(PurchaseStatus.CANCELED)">Cancel</button>
+            </ng-container>
+
+            <!-- In Transit status -->
+            <ng-container *ngSwitchCase="PurchaseStatus.IN_TRANSIT">
+                <button mat-button color="primary" (click)="changeStatus(PurchaseStatus.DELIVERED)">Mark Delivered</button>
+                <button mat-button color="warn" (click)="changeStatus(PurchaseStatus.CANCELED)">Cancel</button>
+            </ng-container>
+        </ng-container>
+    </mat-card-actions>
+</mat-card>

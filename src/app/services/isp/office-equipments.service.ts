@@ -1,12 +1,11 @@
-import { Injectable } from '@angular/core';
-import { FullOfficeEquipment, OfficeEquipmentDto } from '../../models/isp/office-equipment.models';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { firstValueFrom, Observable } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
-import { OfficesService } from './offices.service';
-import { EquipmentsService } from './equipments.service';
-import { EquipmentTypesService } from './equipment-types.service';
-import { CitiesService } from './cities.service';
+import {Injectable} from '@angular/core';
+import {AddOfficeEquipmentDto, FullOfficeEquipment, OfficeEquipmentDto} from '../../models/isp/office-equipment.models';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {firstValueFrom} from 'rxjs';
+import {environment} from '../../../environments/environment.development';
+import {OfficesService} from './offices.service';
+import {EquipmentsService} from './equipments.service';
+import {AddPurchaseDto, PurchaseDto} from "../../models/isp/purchase.models";
 
 @Injectable({
   providedIn: 'root'
@@ -25,8 +24,26 @@ export class OfficeEquipmentsService {
     return firstValueFrom(this.http.get<OfficeEquipmentDto[]>(`${environment.apiBaseUrl}/officeequipments/all`, { params }));
   }
 
-   getById(id: number): Observable<OfficeEquipmentDto> {
-    return this.http.get<OfficeEquipmentDto>(`${environment.apiBaseUrl}/officeequipments/${id}`);
+  async get(officeId: number, equipmentId: number): Promise<OfficeEquipmentDto | undefined> {
+    let params = new HttpParams();
+    params = params.append('officeIds', officeId.toString());
+    params = params.append('equipmentIds', equipmentId.toString());
+    const officeEquipments = await firstValueFrom(
+        this.http.get<OfficeEquipmentDto[]>(`${environment.apiBaseUrl}/officeequipments/all`, { params }));
+
+    return officeEquipments[0];
+  }
+
+  getById(id: number): Promise<OfficeEquipmentDto> {
+    return firstValueFrom(this.http.get<OfficeEquipmentDto>(`${environment.apiBaseUrl}/officeequipments/${id}`));
+  }
+
+  create(dto: AddOfficeEquipmentDto): Promise<OfficeEquipmentDto> {
+    return firstValueFrom(this.http.post<OfficeEquipmentDto>(`${environment.apiBaseUrl}/officeequipments`, dto));
+  }
+
+  update(dto: OfficeEquipmentDto): Promise<OfficeEquipmentDto> {
+    return firstValueFrom(this.http.put<OfficeEquipmentDto>(`${environment.apiBaseUrl}/officeequipments/${dto.id}`, dto));
   }
 
   async getByOfficeFull(officeId: number): Promise<FullOfficeEquipment[]> {
@@ -56,7 +73,7 @@ export class OfficeEquipmentsService {
   
   async getByIdFull(id: number): Promise<FullOfficeEquipment> {
     // Office equipment dto
-    const officeEquipmentDto = await firstValueFrom(this.getById(id));
+    const officeEquipmentDto = await this.getById(id);
 
     // Related dtos
     const fullOffice = await this.officesService.getByIdFull(officeEquipmentDto.officeId);

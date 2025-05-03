@@ -1,11 +1,11 @@
 // connections.component.ts
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -143,7 +143,7 @@ export class ConnectionListComponent implements OnInit {
     private internetTariffsService: InternetTariffsService,
     private clientStatusesService: ClientStatusesService,
     private locationTypesService: LocationTypesService,
-    private citiesServise: CitiesService,
+    private citiesService: CitiesService,
     private internetTariffStatusesService: InternetTariffStatusesService,
     private monitoringService: MonitoringService,
     private dialog: MatDialog,
@@ -224,7 +224,7 @@ export class ConnectionListComponent implements OnInit {
       requestStatuses: this.icrStatusesService.get(),
       clientStatuses: this.clientStatusesService.get(),
       locationTypes: this.locationTypesService.get(),
-      cities: this.citiesServise.get()
+      cities: this.citiesService.get()
     }).subscribe(results => {
       this.internetTariffStatuses = results.internetTariffStatuses;
       this.requestStatuses = results.requestStatuses;
@@ -339,7 +339,9 @@ export class ConnectionListComponent implements OnInit {
       const newIcrStatus = this.icrStatuses.find(x => x.internetConnectionRequestStatusName === statusName);
       
       if(!newIcrStatus){
-        throw new Error('Internet connection request not found.');
+        alert('Error updating internet connection request.');
+        console.error('Internet connection request not found.');
+        return;
       }
     
       icr.internetConnectionRequestStatusId = newIcrStatus.id;

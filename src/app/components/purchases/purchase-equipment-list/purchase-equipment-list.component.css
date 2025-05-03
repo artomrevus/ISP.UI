@@ -1,0 +1,13 @@
+.equipment-list {
+    margin-top: 16px;
+}
+
+.equipment-details {
+    margin-top: 16px;
+}
+
+.actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+}

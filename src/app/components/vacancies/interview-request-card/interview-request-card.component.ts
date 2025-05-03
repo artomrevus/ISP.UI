@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -19,10 +19,10 @@ import { InterviewsService } from '../../../services/isp/interviews.service';
 import { AddInterviewDto } from '../../../models/isp/interview.models';
 import { ContractDialogComponent } from '../contract-dialog/contract-dialog.component';
 import { Guid } from 'js-guid';
-import { AddEmployeeDto, EmployeeDto, FullEmployee } from '../../../models/isp/employee.models';
+import { AddEmployeeDto, FullEmployee } from '../../../models/isp/employee.models';
 import { EmployeesService } from '../../../services/isp/employees.service';
 import { VacanciesService } from '../../../services/isp/vacancies.service';
-import { EmployeePosition, FullEmployeePosition } from '../../../models/isp/employee-position.models';
+import { FullEmployeePosition } from '../../../models/isp/employee-position.models';
 import { EmployeeStatus, FullEmployeeStatus } from '../../../models/isp/employee-status.models';
 import { AuthEmployeeService } from '../../../services/auth/auth-employee.service';
 import { RegisterEmployeeRequestDto } from '../../../models/auth/auth-request.models';
@@ -74,7 +74,8 @@ export class InterviewRequestCardComponent {
       // Find status 
       const updatedStatus = this.interviewRequestStatuses.find(x => x.interviewRequestStatusName === interviewRequestStatus);
       if (!updatedStatus) {
-        throw new Error('Interview request status not found.');
+        console.error('Interview request status not found.');
+        return;
       }
 
       // Create update dto
@@ -223,7 +224,7 @@ export class InterviewRequestCardComponent {
     // Create employee account
     await this.registerUser(employee.id);
 
-    // Log creatinon activity
+    // Log creation activity
     if (!this.interviewRequest.interview || !this.interviewRequest.interview.contract) {
       throw new Error('Expected to contract was created.');
     }
@@ -298,9 +299,9 @@ export class InterviewRequestCardComponent {
       throw new Error('Contract not found, but expected to be created.');
     } 
 
-    this.terinateEmployee(contract.employeeId);
-    this.deleteUser(contract.employeeId);
-    this.setContractStatus(contract, contractStatus);
+    await this.terinateEmployee(contract.employeeId);
+    await this.deleteUser(contract.employeeId);
+    await this.setContractStatus(contract, contractStatus);
   }
 
 
@@ -329,7 +330,8 @@ export class InterviewRequestCardComponent {
       // Find contract status 
       const newContractStatus = this.contractStatuses.find(x => x.contractStatusName === contractStatus);
       if (!newContractStatus) {
-        throw new Error(`Contract ${contractStatus} status not found.`);
+        console.error(`Contract ${contractStatus} status not found.`);
+        return;
       }
 
       // Create update dto

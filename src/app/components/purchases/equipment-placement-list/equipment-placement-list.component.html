@@ -1,0 +1,82 @@
+<div class="placement-list">
+    <h3>Equipment Placements</h3>
+
+    <table mat-table [dataSource]="placements" class="mat-elevation-z8" *ngIf="placements.length > 0">
+        <ng-container matColumnDef="office">
+            <th mat-header-cell *matHeaderCellDef>Office</th>
+            <td mat-cell *matCellDef="let placement">
+                <ng-container *ngIf="editingPlacementId !== placement.id">
+                    {{ `${placement.officeEquipment.office.address} (${placement.officeEquipment.office.city.cityName})` }}
+                </ng-container>
+                <form [formGroup]="editForm" *ngIf="editingPlacementId === placement.id">
+                    <mat-form-field appearance="outline">
+                        <mat-select formControlName="officeId">
+                            <mat-option *ngFor="let office of offices" [value]="office.id">
+                                {{ `${office.address} (${office.city.cityName})` }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </form>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let placement">
+                <ng-container *ngIf="editingPlacementId !== placement.id">
+                    {{ placement.date | date:'mediumDate' }}
+                </ng-container>
+                <form [formGroup]="editForm" *ngIf="editingPlacementId === placement.id">
+                    <mat-form-field appearance="outline">
+                        <input matInput [matDatepicker]="picker" formControlName="date">
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+                </form>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>Amount</th>
+            <td mat-cell *matCellDef="let placement">
+                <ng-container *ngIf="editingPlacementId !== placement.id">
+                    {{ placement.equipmentPlacementAmount }}
+                </ng-container>
+                <form [formGroup]="editForm" *ngIf="editingPlacementId === placement.id">
+                    <mat-form-field appearance="outline">
+                        <input matInput type="number" formControlName="equipmentPlacementAmount">
+                    </mat-form-field>
+                </form>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="edit">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let placement">
+                <ng-container *ngIf="editingPlacementId !== placement.id">
+                    <button mat-icon-button color="primary" (click)="startEditing(placement)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="primary" (click)="deletePlacement(placement)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </ng-container>
+                <ng-container *ngIf="editingPlacementId === placement.id">
+                    <button mat-icon-button color="warn" (click)="cancelEditing()">
+                        <mat-icon>cancel</mat-icon>
+                    </button>
+                    <button mat-icon-button color="primary" (click)="savePlacement()">
+                        <mat-icon>save</mat-icon>
+                    </button>
+                </ng-container>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <div *ngIf="placements.length === 0" class="no-data">
+        No placements found for this equipment.
+    </div>
+</div>

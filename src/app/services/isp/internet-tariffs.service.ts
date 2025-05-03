@@ -1,10 +1,10 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { firstValueFrom, Observable } from 'rxjs';
-import { FullInternetTariff, InternetTariffDto } from '../../models/isp/internet-tariff.models';
-import { environment } from '../../../environments/environment.development';
-import { InternetTariffStatusesService } from './internet-tariff-statuses.service';
-import { LocationTypesService } from './location-types.service';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {firstValueFrom, Observable} from 'rxjs';
+import {FullInternetTariff, InternetTariffDto} from '../../models/isp/internet-tariff.models';
+import {environment} from '../../../environments/environment.development';
+import {InternetTariffStatusesService} from './internet-tariff-statuses.service';
+import {LocationTypesService} from './location-types.service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,8 +30,8 @@ export class InternetTariffsService {
       
     const fullInternetTariffStatus = await this.internetTariffStatusesService.getByIdFull(internetTariffDto.internetTariffStatusId);
     const fullLocationType = await this.locationTypesService.getByIdFull(internetTariffDto.locationTypeId);
-      
-    const fullClient = {
+
+    return {
       id: internetTariffDto.id,
       internetTariffStatusId: internetTariffDto.internetTariffStatusId,
       locationTypeId: internetTariffDto.locationTypeId,
@@ -41,9 +41,7 @@ export class InternetTariffsService {
       description: internetTariffDto.description,
       internetTariffStatus: fullInternetTariffStatus,
       locationType: fullLocationType
-    }
-      
-    return fullClient;
+    };
   }
 
   async getFull(): Promise<FullInternetTariff[]> {

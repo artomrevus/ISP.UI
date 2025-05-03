@@ -1,0 +1,24 @@
+<mat-accordion class="equipment-list">
+    <mat-expansion-panel *ngFor="let purchaseEquipment of purchaseEquipments">
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                {{ getEquipment(purchaseEquipment.equipmentId)?.name }}
+            </mat-panel-title>
+            <mat-panel-description>
+                Amount: {{ purchaseEquipment.purchaseEquipmentAmount }} | Price: {{ purchaseEquipment.price | currency }}
+            </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <div class="equipment-details">
+            <app-equipment-placement-list
+                [purchaseEquipmentId]="purchaseEquipment.id">
+            </app-equipment-placement-list>
+
+            <div class="actions" *ngIf="isDelivered">
+                <button mat-raised-button color="primary" (click)="addPlacement(purchaseEquipment.id)">
+                    <mat-icon>add</mat-icon> Add Placement
+                </button>
+            </div>
+        </div>
+    </mat-expansion-panel>
+</mat-accordion>
