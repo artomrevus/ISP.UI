@@ -1,13 +1,131 @@
 .equipment-list {
     margin-top: 16px;
+    box-shadow: none !important;
 }
 
+mat-expansion-panel {
+    border-radius: 8px !important;
+    margin-bottom: 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    transition: all 0.3s ease !important;
+    overflow: hidden;
+}
+
+mat-expansion-panel:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    transform: translateY(-2px);
+}
+
+mat-expansion-panel-header {
+    padding: 0 16px !important;
+    height: 56px !important;
+}
+
+mat-panel-title {
+    color: #333;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+mat-panel-description {
+    color: #666;
+    font-size: 14px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+mat-panel-description::before {
+    content: '';
+    display: inline-block;
+}
+
+/* Стилізація деталей обладнання */
 .equipment-details {
     margin-top: 16px;
+    padding: 0 8px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 16px;
 }
 
+/* Стилізація дій */
 .actions {
-    margin-top: 16px;
+    margin-top: 20px;
     display: flex;
     justify-content: flex-end;
+    padding-top: 16px;
+    border-top: 1px dashed #e0e0e0;
+}
+
+.actions button {
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 0 16px;
+    height: 40px;
+    transition: all 0.2s ease;
+}
+
+.actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+}
+
+.actions mat-icon {
+    margin-right: 4px;
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+    line-height: 18px;
+}
+
+/* Стилізація для відкритої панелі */
+.mat-expanded {
+    background-color: #f9f9f9;
+}
+
+/* Адаптивність для мобільних пристроїв */
+@media (max-width: 768px) {
+    mat-expansion-panel-header {
+        height: auto !important;
+        padding: 12px 16px !important;
+    }
+
+    mat-panel-title, mat-panel-description {
+        margin: 4px 0;
+    }
+
+    mat-expansion-panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    mat-panel-description {
+        margin-top: 4px;
+    }
+}
+
+/* Стилізація для компонента розміщення обладнання */
+app-equipment-placement-list {
+    display: block;
+    margin-bottom: 16px;
+}
+
+.details-title {
+    margin: 0 0 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+    padding-bottom: 8px;
+    position: relative;
+}
+
+.details-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 2px;
+    background-color: #2196f3;
 }

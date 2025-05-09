@@ -1,21 +1,21 @@
-<!-- Header -->
-<app-network-technician-header></app-network-technician-header>
-
-<!-- Body -->
 <div class="connections-container">
 
   <!-- Body header -->
   <div class="connections-header">
     <h1>{{(connectionEmployeeId ? 'Мої підключення' : 'Всі запити')}}</h1>
     <div class="actions">
-      <button mat-raised-button color="primary" (click)="toggleFilterByEmployee()">
-        <mat-icon>all_inbox</mat-icon>
-        {{(connectionEmployeeId ? 'Всі запити' : 'Мої підключення' )}}
-      </button>
-      <button mat-raised-button color="primary" (click)="toggleFilterPanel()">
-        <mat-icon>filter_list</mat-icon>
-        Фільтрувати / Сортувати
-      </button>
+        <button mat-raised-button color="primary" (click)="exportAsJson()">
+            <mat-icon>upload_file</mat-icon>
+            Експортувати
+        </button>
+        <button mat-raised-button color="primary" (click)="toggleFilterByEmployee()">
+            <mat-icon>all_inbox</mat-icon>
+            {{(connectionEmployeeId ? 'Всі запити' : 'Мої підключення' )}}
+        </button>
+        <button mat-raised-button color="primary" (click)="toggleFilterPanel()">
+            <mat-icon>filter_list</mat-icon>
+            Фільтрувати / Сортувати
+        </button>
     </div>
   </div>
 
@@ -258,24 +258,24 @@
                 <!-- "New" button -->
                 <ng-container *ngIf="isIcrStatus(icr, 'New')">
                   <button mat-raised-button (click)="setIcrStatus(icr, 'Approved')">
-                    <mat-icon>check</mat-icon> Approve
+                    <mat-icon>check</mat-icon> Прийняти
                   </button>
                   <button mat-raised-button (click)="setIcrStatus(icr, 'Rejected')">
-                    <mat-icon>close</mat-icon> Reject
+                    <mat-icon>close</mat-icon> Відхилити
                   </button>
                 </ng-container>
 
                 <!-- "Approved" button -->
                 <ng-container *ngIf="isIcrStatus(icr, 'Approved')">
                   <button mat-raised-button (click)="setIcrStatus(icr, 'Connected')">
-                    <mat-icon>link</mat-icon> Connect
+                    <mat-icon>link</mat-icon> Підключити
                   </button>
                 </ng-container>
 
                 <!-- "Connected" button -->
                 <ng-container *ngIf="isIcrStatus(icr, 'Connected')">
                   <button mat-raised-button (click)="setIcrStatus(icr, 'Disconnected')">
-                    <mat-icon>link_off</mat-icon> Disconnect
+                    <mat-icon>link_off</mat-icon> Відключити
                   </button>
                 </ng-container>
               </div>

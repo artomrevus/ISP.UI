@@ -1,14 +1,13 @@
-import { Injectable } from '@angular/core';
-import { AddEmployeeDto, EmployeeData, EmployeeDto, FullEmployee } from '../../models/isp/employee.models';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom, Observable } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
-import { OfficesService } from './offices.service';
-import { InterviewsService } from './interviews.service';
-import { InterviewRequestsService } from './interview-requests.service';
-import { CandidatesService } from './candidates.service';
-import { ContractsService } from './contracts.service';
-import { InterviewDto } from '../../models/isp/interview.models';
+import {Injectable} from '@angular/core';
+import {AddEmployeeDto, EmployeeData, EmployeeDto, FullEmployee} from '../../models/isp/employee.models';
+import {HttpClient} from '@angular/common/http';
+import {firstValueFrom, Observable} from 'rxjs';
+import {environment} from '../../../environments/environment.development';
+import {OfficesService} from './offices.service';
+import {InterviewRequestsService} from './interview-requests.service';
+import {CandidatesService} from './candidates.service';
+import {ContractsService} from './contracts.service';
+import {InterviewDto} from '../../models/isp/interview.models';
 
 @Injectable({
   providedIn: 'root'
@@ -23,17 +22,17 @@ export class EmployeesService {
     private contractsService: ContractsService) {
   }
 
-  getById(id: number): Observable<EmployeeDto> {
-    return this.http.get<EmployeeDto>(`${environment.apiBaseUrl}/employees/${id}`);
+  getById(id: number): Promise<EmployeeDto> {
+    return firstValueFrom(this.http.get<EmployeeDto>(`${environment.apiBaseUrl}/employees/${id}`));
   }
 
   async getByIdFull(id: number): Promise<FullEmployee> {
-    const employeeDto = await firstValueFrom(this.getById(id));
+    const employeeDto = await this.getById(id);
 
     const fullOffice = await this.officesService.getByIdFull(employeeDto.officeId);
     const employeeData = await this.getEmployeeData(id);
 
-    const fullEmployee: FullEmployee = {
+    return {
       id: employeeDto.id,
       officeId: employeeDto.officeId,
       employeePositionId: employeeDto.employeePositionId,
@@ -43,13 +42,11 @@ export class EmployeesService {
       lastName: employeeData.lastName,
       email: employeeData.email,
       phoneNumber: employeeData.phoneNumber
-    }
-
-    return fullEmployee;
+    };
   }
 
   async getByIdFullWithoutData(id: number): Promise<FullEmployee> {
-    const employeeDto = await firstValueFrom(this.getById(id));
+    const employeeDto = await this.getById(id);
 
     const fullOffice = await this.officesService.getByIdFull(employeeDto.officeId);
 

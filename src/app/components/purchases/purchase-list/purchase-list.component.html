@@ -1,49 +1,54 @@
 <div class="purchase-list-container">
     <div class="header">
-        <h1>Purchases</h1>
-        <button mat-raised-button color="primary" (click)="openAddPurchaseDialog()">
-            <mat-icon>add</mat-icon> New Purchase
-        </button>
+        <h1 *ngIf="employeeRole === AuthRoles.OFFICE_MANAGER">Закупки</h1>
+        <h1 *ngIf="employeeRole === AuthRoles.WAREHOUSE_WORKER">Розміщення</h1>
+        <div class="header-actions">
+            <button mat-raised-button color="primary" class="add-button" (click)="exportAsJson()">
+                <mat-icon>upload_file</mat-icon>
+                Експортувати
+            </button>
+            <button *ngIf="employeeRole === AuthRoles.OFFICE_MANAGER" mat-raised-button color="primary" class="add-button" (click)="openAddPurchaseDialog()">
+                <mat-icon>add</mat-icon>
+                Нова закупка
+            </button>
+            <button mat-raised-button color="accent" class="filter-button" (click)="toggleFilterPanel()">
+                <mat-icon>filter_list</mat-icon>
+                Фільтрувати / сортувати
+            </button>
+        </div>
     </div>
 
-    <!-- <app-filters
-            (filterChange)="onFilterChange($event)"
-            [currentFilter]="filterParams">
-    </app-filters> -->
+    <mat-sidenav-container class="purchase-sidenav-container">
 
-<!--    <div class="sort-controls">-->
-<!--        <mat-form-field>-->
-<!--            <mat-label>Sort by</mat-label>-->
-<!--            <mat-select [(value)]="sortOptions.sortBy" (selectionChange)="onSortChange()">-->
-<!--                <mat-option value="date">Date</mat-option>-->
-<!--                <mat-option value="totalPrice">Total Price</mat-option>-->
-<!--                <mat-option value="purchaseEquipmentsCount">Equipment Count</mat-option>-->
-<!--            </mat-select>-->
-<!--        </mat-form-field>-->
+        <mat-sidenav mode="side" [opened]="isFilterPanelOpen" class="filters-sidenav" position="start">
+            <app-purchase-filter-panel
+                    (filtersChanged)="onFiltersChanged($event)"
+                    (closeRequest)="closeFilterPanel()">
+            </app-purchase-filter-panel>
+        </mat-sidenav>
 
-<!--        <mat-button-toggle-group [(value)]="sortOptions.ascending" (change)="onSortChange()">-->
-<!--            <mat-button-toggle value=true>-->
-<!--                <mat-icon>arrow_upward</mat-icon>-->
-<!--            </mat-button-toggle>-->
-<!--            <mat-button-toggle value=false>-->
-<!--                <mat-icon>arrow_downward</mat-icon>-->
-<!--            </mat-button-toggle>-->
-<!--        </mat-button-toggle-group>-->
-<!--    </div>-->
+        <mat-sidenav-content>
+            <div class="purchase-content">
+                <div class="masonry-container">
+                    <div *ngIf="isPurchasesLoading" class="loading-spinner">
+                        <mat-spinner diameter="40"></mat-spinner>
+                    </div>
+                    <div class="masonry-grid">
+                        <div class="masonry-item" *ngFor="let purchase of purchases">
+                            <app-purchase-card [purchase]="purchase"></app-purchase-card>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="purchases-grid">
-        <app-purchase-card
-                *ngFor="let purchase of purchases"
-                [purchase]="purchase"
-                (statusChange)="onStatusChange($event)"
-                (purchaseUpdated)="loadPurchases()">
-        </app-purchase-card>
-    </div>
-
-    <mat-paginator
-            [length]="totalItems"
-            [pageSize]="pageSize"
-            [pageSizeOptions]="[5, 10, 25, 50]"
-            (page)="onPageChange($event)">
-    </mat-paginator>
+                <div class="pagination-container">
+                    <mat-paginator
+                            [length]="totalItems"
+                            [pageSize]="pageSize"
+                            [pageSizeOptions]="[3, 5, 10]"
+                            (page)="onPageChange($event)">
+                    </mat-paginator>
+                </div>
+            </div>
+        </mat-sidenav-content>
+    </mat-sidenav-container>
 </div>

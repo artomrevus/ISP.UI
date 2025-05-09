@@ -26,6 +26,10 @@ export class EquipmentPlacementsService {
     return firstValueFrom(this.http.get<EquipmentPlacementDto[]>(`${environment.apiBaseUrl}/equipmentplacements/all`, { params }));
   }
 
+  getById(id: number): Promise<EquipmentPlacementDto> {
+    return firstValueFrom(this.http.get<EquipmentPlacementDto>(`${environment.apiBaseUrl}/equipmentplacements/${id}`));
+  }
+
   create(dto: AddEquipmentPlacementDto): Promise<EquipmentPlacementDto> {
     return firstValueFrom(this.http.post<EquipmentPlacementDto>(`${environment.apiBaseUrl}/equipmentplacements`, dto));
   }
@@ -61,5 +65,23 @@ export class EquipmentPlacementsService {
     }
 
     return fullPurchaseEquipments;
+  }
+
+  async getByIdFull(id: number): Promise<FullEquipmentPlacement> {
+    const equipmentPlacementDto = await this.getById(id);
+
+    const fullEmployee = await this.employeesService.getByIdFull(equipmentPlacementDto.employeeId);
+    const fullOfficeEquipment = await this.officeEquipmentsService.getByIdFull(equipmentPlacementDto.officeEquipmentId);
+
+    return  {
+      id: equipmentPlacementDto.id,
+      employeeId: equipmentPlacementDto.employeeId,
+      purchaseEquipmentId: equipmentPlacementDto.purchaseEquipmentId,
+      officeEquipmentId: equipmentPlacementDto.officeEquipmentId,
+      equipmentPlacementAmount: equipmentPlacementDto.equipmentPlacementAmount,
+      date: equipmentPlacementDto.date,
+      employee: fullEmployee,
+      officeEquipment: fullOfficeEquipment
+    }
   }
 }

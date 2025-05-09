@@ -9,6 +9,13 @@ export interface PurchaseEquipmentDto {
     price: number;
 }
 
+export interface AddPurchaseEquipmentDto {
+    purchaseId: number;
+    equipmentId: number;
+    purchaseEquipmentAmount: number;
+    price: number;
+}
+
 export interface FullPurchaseEquipment extends PurchaseEquipmentDto {
     // Relations
     equipment?: FullEquipment;

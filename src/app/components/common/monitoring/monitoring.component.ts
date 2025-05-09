@@ -18,6 +18,7 @@ import { CitiesService } from '../../../services/isp/cities.service';
 import { MonitoringService } from '../../../services/monitoring/monitoring.service';
 import { firstValueFrom } from 'rxjs';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import {DateFormatterService} from "../../../services/common/date-formatter.service";
 
 @Component({
   selector: 'app-monitoring',
@@ -66,7 +67,8 @@ export class MonitoringComponent implements OnInit {
   constructor(
     private monitoringService: MonitoringService,
     private officesService: OfficesService,
-    private citiesService: CitiesService
+    private citiesService: CitiesService,
+    private dateFormatterService: DateFormatterService,
   ) {}
 
 
@@ -278,5 +280,44 @@ export class MonitoringComponent implements OnInit {
     }
 
     return details;
+  }
+
+
+  // ---------------------------------
+  //
+  // Export methods
+  //
+  // ---------------------------------
+
+
+  async exportAsJson() {
+    let exportActivities: any[] = [];
+    for (const activity of this.activities) {
+      const exportActivity = {
+        timestamp: activity.timestamp,
+        role: activity.role,
+        userName: activity.userName,
+        action: activity.action,
+        actionOn: activity.actionOn,
+        details: activity.details
+      }
+
+      exportActivities.push(exportActivity);
+    }
+
+    const jsonString = JSON.stringify(exportActivities, null, 2);
+    console.log(jsonString)
+    const blob = new Blob([jsonString], { type: 'application/json' });
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `activities-${this.dateFormatterService.formatDate(new Date())}.json`;
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    window.URL.revokeObjectURL(url);
   }
 }

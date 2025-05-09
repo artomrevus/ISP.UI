@@ -1,0 +1,80 @@
+<h2 class="dialog-title">Створення нової закупки</h2>
+<div class="dialog-content">
+    <form [formGroup]="purchaseForm" class="purchase-form">
+        <mat-form-field appearance="outline">
+            <mat-label>Постачальник</mat-label>
+            <mat-select formControlName="supplierId">
+                <mat-option *ngFor="let supplier of suppliers" [value]="supplier.id">
+                    {{ supplier.name }}
+                </mat-option>
+            </mat-select>
+            <mat-error *ngIf="purchaseForm.get('supplierId')?.hasError('required')">
+                Постачальник обов'язковий
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Дата</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="date">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="purchaseForm.get('date')?.hasError('required')">
+                Дата обов'язкова
+            </mat-error>
+        </mat-form-field>
+
+        <div class="equipment-section">
+            <h3>Обладнання</h3>
+
+            <div formArrayName="equipments">
+                <div *ngFor="let equipment of equipmentsFormArray.controls; let i = index" [formGroupName]="i" class="equipment-item">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Обладнання</mat-label>
+                        <mat-select formControlName="equipmentId" (selectionChange)="updatePrice(i)">
+                            <mat-option *ngFor="let eq of availableEquipment" [value]="eq.id">
+                                {{ eq.name }} - {{ eq.price | currency }}
+                            </mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="equipment.get('equipmentId')?.hasError('required')">
+                            Обладнання обов'язкове
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Кількість</mat-label>
+                        <input matInput formControlName="amount" type="number" (input)="updateTotalPrice()">
+                        <mat-error *ngIf="equipment.get('amount')?.hasError('required')">
+                            Кількість обов'язкова
+                        </mat-error>
+                        <mat-error *ngIf="equipment.get('amount')?.hasError('min')">
+                            Мін. 1
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Ціна</mat-label>
+                        <input matInput formControlName="price" type="number" readonly>
+                    </mat-form-field>
+
+                    <button mat-icon-button color="warn" type="button" (click)="removeEquipment(i)" aria-label="Видалити обладнання">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </div>
+
+                <button mat-stroked-button type="button" (click)="addEquipment()">
+                    <mat-icon>add</mat-icon> Додати обладнання
+                </button>
+            </div>
+        </div>
+
+        <div class="total-price">
+            <strong>Загальна ціна: {{ totalPrice | currency }}</strong>
+        </div>
+    </form>
+</div>
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Скасувати</button>
+    <button mat-raised-button color="primary" [disabled]="purchaseForm.invalid || equipmentsFormArray.length === 0" (click)="createPurchase()">
+        Створити
+    </button>
+</mat-dialog-actions>

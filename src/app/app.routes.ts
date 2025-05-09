@@ -11,6 +11,31 @@ import { HumanResourceMonitoringComponent } from './components/human-resource/hu
 import { LoginOfficeManagerComponent } from './components/office-manager/login-office-manager/login-office-manager.component';
 import {PurchaseListComponent} from "./components/purchases/purchase-list/purchase-list.component";
 import {authOfficeManagerGuard} from "./guards/auth-office-manager.guard";
+import {
+    NetworkTechnicianConnectionsComponent
+} from "./components/network-technician/network-technician-connections/network-technician-connections.component";
+import {
+    HumanResourceVacanciesComponent
+} from "./components/human-resource/human-resource-vacancies/human-resource-vacancies.component";
+import {
+    OfficeManagerPurchasesComponent
+} from "./components/office-manager/office-manager-purchases/office-manager-purchases.component";
+import {
+    LoginWarehouseWorkerComponent
+} from "./components/warehouse-worker/login-warehouse-worker/login-warehouse-worker.component";
+import {
+    WarehouseWorkerPlacementsComponent
+} from "./components/warehouse-worker/warehouse-worker-placements/warehouse-worker-placements.component";
+import {authWarehouseWorkerGuard} from "./guards/auth-warehouse-worker.guard";
+import {
+    OfficeManagerMonitoringComponent
+} from "./components/office-manager/office-manager-monitoring/office-manager-monitoring.component";
+import {
+    WarehouseWorkerMonitoringComponent
+} from "./components/warehouse-worker/warehouse-worker-monitoring/warehouse-worker-monitoring.component";
+import {LoginAdminComponent} from "./components/admin/login-admin/login-admin.component";
+import {AdminMonitoringComponent} from "./components/admin/admin-monitoring/admin-monitoring.component";
+import {authAdminGuard} from "./guards/auth-admin.guard";
 
 export const routes: Routes = [
     {
@@ -28,7 +53,7 @@ export const routes: Routes = [
     },
     {
         path: 'network-technician/connections',
-        component: ConnectionListComponent,
+        component: NetworkTechnicianConnectionsComponent,
         canActivate: [authNetworkTechnicianGuard]
     },
     { 
@@ -42,7 +67,7 @@ export const routes: Routes = [
     },
     {
         path: 'human-resource/vacancies',
-        component: VacancyListComponent,
+        component: HumanResourceVacanciesComponent,
         canActivate: [authHumanResourceGuard]
     },
     { 
@@ -56,8 +81,36 @@ export const routes: Routes = [
     },
     {
         path: 'office-manager/purchases',
-        component: PurchaseListComponent,
+        component: OfficeManagerPurchasesComponent,
         canActivate: [authOfficeManagerGuard]
+    },
+    {
+        path: 'office-manager/monitoring',
+        component: OfficeManagerMonitoringComponent,
+        canActivate: [authOfficeManagerGuard]
+    },
+    {
+        path: 'warehouse-worker/login',
+        component: LoginWarehouseWorkerComponent
+    },
+    {
+        path: 'warehouse-worker/placements',
+        component: WarehouseWorkerPlacementsComponent,
+        canActivate: [authWarehouseWorkerGuard]
+    },
+    {
+        path: 'warehouse-worker/monitoring',
+        component: WarehouseWorkerMonitoringComponent,
+        canActivate: [authWarehouseWorkerGuard]
+    },
+    {
+        path: 'admin/login',
+        component: LoginAdminComponent
+    },
+    {
+        path: 'admin/monitoring',
+        component: AdminMonitoringComponent,
+        canActivate: [authAdminGuard]
     },
     {
         path: '**',

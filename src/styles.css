@@ -2,3 +2,37 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.purchase-dialog .mat-dialog-container {
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.cdk-overlay-pane.purchase-dialog {
+    max-width: 95vw;
+}
+
+.equipment-placement-dialog .mat-dialog-container {
+    padding: 0 !important;
+    border-radius: 8px !important;
+}
+
+.equipment-placement-dialog .mat-dialog-title {
+    background-color: #f5f7fa !important;
+}
+
+.equipment-placement-dialog.mat-dialog-container {
+    animation: dialogFadeIn 0.3s ease-out;
+}
+
+@keyframes dialogFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

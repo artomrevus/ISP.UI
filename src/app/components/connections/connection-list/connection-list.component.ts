@@ -1,4 +1,3 @@
-// connections.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -51,7 +50,6 @@ import { ConnectionDialogComponent } from '../create-connection-dialog/connectio
 import { PaginationParameters } from '../../../models/isp/pagination.models';
 import { MonitoringService } from '../../../services/monitoring/monitoring.service';
 import { AddUserActivityDto } from '../../../models/monitoring/activity.models';
-import { NetworkTechnicianHeaderComponent } from '../../network-technician/network-technician-header/network-technician-header.component';
 
 @Component({
   selector: 'app-connection-list',
@@ -77,8 +75,7 @@ import { NetworkTechnicianHeaderComponent } from '../../network-technician/netwo
     MatDividerModule,
     MatListModule,
     MatDialogModule,
-    IcrsFilterPanelComponent,
-    NetworkTechnicianHeaderComponent
+    IcrsFilterPanelComponent
   ],
   templateUrl: './connection-list.component.html',
   styleUrls: ['./connection-list.component.css']
@@ -679,7 +676,7 @@ export class ConnectionListComponent implements OnInit {
       throw new Error('Login data is outdated or corrupted.');
     }
 
-    return firstValueFrom(this.employeesService.getById(+savedLogin.employeeId));
+    return this.employeesService.getById(+savedLogin.employeeId);
   }
 
 
@@ -857,5 +854,87 @@ export class ConnectionListComponent implements OnInit {
     details += `Загальна вартість: ${icr.connection.totalPrice}\n`;
 
     return details;
+  }
+
+
+  // ---------------------------------
+  //
+  // Export methods
+  //
+  // ---------------------------------
+
+
+  async exportAsJson() {
+    let exportIcrs: any[] = [];
+    for (const icr of this.pageIcrs) {
+
+      const exportConnectionEquipments: any[] = [];
+
+      if (icr.connection?.connectionEquipments) {
+        for (const connectionEquipment of icr.connection.connectionEquipments) {
+          exportConnectionEquipments.push({
+            equipmentName: connectionEquipment.officeEquipment.equipment.name,
+            equipmentAmount: connectionEquipment.connectionEquipmentAmount
+          });
+        }
+      }
+
+      const exportIcr = {
+        number: icr.number,
+        status: icr.internetConnectionRequestStatus.internetConnectionRequestStatusName,
+        date: icr.requestDate,
+        internetTariff: {
+          name: icr.internetTariff.name,
+          internetSpeedMbits: icr.internetTariff.internetSpeedMbits,
+          price: icr.internetTariff.price,
+          status: icr.internetTariff.internetTariffStatus.internetTariffStatusName,
+          locationType: icr.internetTariff.locationType.locationTypeName,
+          description: icr.internetTariff.description,
+        },
+        client: {
+          firstName: icr.client.firstName,
+          lastName: icr.client.lastName,
+          email: icr.client.email,
+          phoneNumber: icr.client.phoneNumber,
+          city: icr.client.location.house.street.city.cityName,
+          street: icr.client.location.house.street.streetName,
+          houseNumber: icr.client.location.house.houseNumber,
+          apartmentNumber: icr.client.location.apartmentNumber,
+          locationType: icr.client.location.locationType.locationTypeName
+        },
+        connection: {
+          date: icr.connection?.connectionDate,
+          connectionTariff: {
+            name: icr.connection?.connectionTariff.name,
+            price: icr.connection?.connectionTariff.price
+          },
+          connectionEquipment: exportConnectionEquipments,
+          totalPrice: icr.connection?.totalPrice,
+        },
+        employee: {
+          firstName: icr.connection?.employee.firstName,
+          lastName: icr.connection?.employee.lastName,
+          email: icr.connection?.employee.email,
+          phoneNumber: icr.connection?.employee.phoneNumber
+        }
+      }
+
+      exportIcrs.push(exportIcr);
+    }
+
+    const jsonString = JSON.stringify(exportIcrs, null, 2);
+    console.log(jsonString)
+    const blob = new Blob([jsonString], { type: 'application/json' });
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `connections-${this.formatDate(new Date())}.json`;
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    window.URL.revokeObjectURL(url);
   }
 }

@@ -40,14 +40,5 @@ export class InterviewRequestListComponent implements OnInit {
 
   async loadInterviewRequests(): Promise<void> {
     this.interviewRequests = await this.interviewRequestsService.getFullByVacancy(this.vacancyId);
-
-    // Log activity
-    // const activity: AddUserActivityDto = {
-    //   actionOn: 'Запити на підключення',
-    //   action: 'Отримання',
-    //   details: this.formatGetActivityDetails(params)
-    // };
-    // 
-    // await firstValueFrom(this.monitoringService.logActivity(activity));
   }
 }

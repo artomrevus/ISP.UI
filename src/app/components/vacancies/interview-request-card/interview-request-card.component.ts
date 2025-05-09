@@ -299,13 +299,13 @@ export class InterviewRequestCardComponent {
       throw new Error('Contract not found, but expected to be created.');
     } 
 
-    await this.terinateEmployee(contract.employeeId);
+    await this.terminateEmployee(contract.employeeId);
     await this.deleteUser(contract.employeeId);
     await this.setContractStatus(contract, contractStatus);
   }
 
 
-  async terinateEmployee(employeeId: number): Promise<void> {
+  async terminateEmployee(employeeId: number): Promise<void> {
     // Find terminated employee status 
     const terminatedEmployeeStatus = this.employeeStatuses.find(x => x.employeeStatusName === EmployeeStatus.TERMINATED);
     if (!terminatedEmployeeStatus) {
@@ -313,7 +313,7 @@ export class InterviewRequestCardComponent {
     }
 
     // Update employee status
-    const employeeToUpdate = await firstValueFrom(this.employeesService.getById(employeeId));
+    const employeeToUpdate = await this.employeesService.getById(employeeId);
     employeeToUpdate.employeeStatusId = terminatedEmployeeStatus.id;
 
     await firstValueFrom(this.employeesService.update(employeeToUpdate));

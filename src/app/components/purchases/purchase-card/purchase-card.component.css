@@ -1,54 +1,215 @@
 .purchase-card {
     margin-bottom: 16px;
+    border-radius: 12px;
+    padding-bottom: 0;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.purchase-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-3px);
+}
+
+/* Стилізація заголовка картки */
+mat-card-header {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background-color: #fafafa;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+mat-card-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0;
+    color: #333;
+}
+
+mat-card-subtitle {
+    margin: 0;
+    font-size: 14px;
 }
 
 .card-actions {
     margin-left: auto;
 }
 
+/* Стилізація вмісту картки */
+mat-card-content {
+    padding: 16px;
+}
+
 .purchase-details {
-    margin: 16px 0;
+    margin: 0 0 16px;
+}
+
+.purchase-number {
+    margin-bottom: 16px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 12px;
+}
+
+.purchase-number {
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(51, 51, 51, 0.55);
+    margin: 0;
 }
 
 .detail-row {
     display: flex;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    align-items: baseline;
 }
 
 .label {
     font-weight: 500;
-    width: 100px;
+    padding-right: 8px;
+    color: #333;
+}
+
+.value {
+    color: #333;
 }
 
 .edit-form {
     display: flex;
     flex-direction: column;
+    gap: 16px;
     margin-top: 16px;
+}
+
+mat-form-field {
+    width: 100%;
+}
+
+.equipment-section {
+    margin-top: 8px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.equipment-section h3 {
+    margin: 0 0 30px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+}
+
+.equipment-item {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr auto;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 768px) {
+    .equipment-item {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-row {
+        flex-direction: column;
+        margin-bottom: 16px;
+    }
+
+    .label {
+        margin-bottom: 4px;
+    }
+}
+
+.total-price {
+    margin: 16px 0;
+    font-size: 16px;
+    text-align: right;
+    color: #333;
 }
 
 .form-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 8px;
-    margin-top: 16px;
+    gap: 12px;
+    margin-top: 24px;
 }
+
+
+mat-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 16px 16px;
+    gap: 8px;
+}
+
 
 .status-requested {
     color: #ff9800;
+    font-weight: 500;
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: rgba(255, 152, 0, 0.1);
 }
 
 .status-approved {
     color: #2196f3;
+    font-weight: 500;
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: rgba(33, 150, 243, 0.1);
 }
 
 .status-in-transit {
     color: #9c27b0;
+    font-weight: 500;
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: rgba(156, 39, 176, 0.1);
 }
 
 .status-delivered {
     color: #4caf50;
+    font-weight: 500;
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: rgba(76, 175, 80, 0.1);
 }
 
 .status-canceled {
     color: #f44336;
+    font-weight: 500;
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+button[mat-button], button[mat-raised-button], button[mat-stroked-button] {
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+button[mat-raised-button] {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+}
+
+button[mat-stroked-button] {
+    margin-top: 8px;
+    width: 100%;
+    padding: 8px;
+}
+
+/* Покращення для списку обладнання */
+app-purchase-equipment-list {
+    display: block;
+    margin-top: 16px;
+    border-top: 1px solid #eee;
+    padding-top: 16px;
 }

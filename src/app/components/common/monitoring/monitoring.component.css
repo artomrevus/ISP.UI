@@ -21,6 +21,15 @@
   margin: 0;
 }
 
+.header-title {
+  flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
 .monitoring-sidenav-container {
   flex: 1;
   height: 100%;

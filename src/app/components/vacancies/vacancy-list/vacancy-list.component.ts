@@ -27,6 +27,9 @@ import { EmployeeStatusesService } from '../../../services/isp/employee-statuses
 import { AddUserActivityDto } from '../../../models/monitoring/activity.models';
 import { MonitoringService } from '../../../services/monitoring/monitoring.service';
 import { HumanResourceHeaderComponent } from '../../human-resource/human-resource-header/human-resource-header.component';
+import {PurchaseFilterPanelComponent} from "../../purchases/purchase-filter-panel/purchase-filter-panel.component";
+import {InterviewRequestsService} from "../../../services/isp/interview-requests.service";
+import {DateFormatterService} from "../../../services/common/date-formatter.service";
 
 
 @Component({
@@ -40,8 +43,7 @@ import { HumanResourceHeaderComponent } from '../../human-resource/human-resourc
     VacancyCardComponent,
     MatIconModule,
     MatSidenavModule,
-    HumanResourceHeaderComponent,
-    VacanciesFilterPanelComponent
+    VacanciesFilterPanelComponent,
   ],
   templateUrl: './vacancy-list.component.html',
   styleUrl: './vacancy-list.component.css'
@@ -83,9 +85,11 @@ export class VacancyListComponent implements OnInit {
     private employeePositionsService: EmployeePositionsService,
     private contractStatusesServices: ContractStatusesService,
     private interviewResultsService: InterviewResultsService,
-    private interviewRequestsService: InterviewRequestStatusesService,
+    private interviewRequestStatusesService: InterviewRequestStatusesService,
+    private interviewRequestsService: InterviewRequestsService,
     private employeeStatusesService: EmployeeStatusesService,
     private monitoringService: MonitoringService,
+    private dateFormatterService: DateFormatterService,
     private dialog: MatDialog
   ) {}
 
@@ -123,7 +127,7 @@ export class VacancyListComponent implements OnInit {
     this.employeePositions = await this.employeePositionsService.getFull();
     this.contractStatuses = await this.contractStatusesServices.getFull();
     this.interviewResults = await this.interviewResultsService.getFull();
-    this.interviewRequestStatuses = await this.interviewRequestsService.getFull();
+    this.interviewRequestStatuses = await this.interviewRequestStatusesService.getFull();
     this.employeeStatuses = await this.employeeStatusesService.getFull();
   }
 
@@ -294,5 +298,79 @@ export class VacancyListComponent implements OnInit {
       default:
         return '';
     }
+  }
+
+
+  // ---------------------------------
+  //
+  // Export methods
+  //
+  // ---------------------------------
+
+
+  async exportAsJson() {
+    let exportVacancies: any[] = [];
+    for (const vacancy of this.vacancies) {
+
+      const exportInterviewRequests: any[] = [];
+      const interviewRequests = await this.interviewRequestsService.getFullByVacancy(vacancy.id);
+      for (const interviewRequest of interviewRequests) {
+        exportInterviewRequests.push({
+          number: interviewRequest.number,
+          status: interviewRequest.interviewRequestStatus.interviewRequestStatusName,
+          applicationDate: interviewRequest.applicationDate,
+          considerationDate: interviewRequest.considerationDate,
+          candidate: {
+            firstName: interviewRequest.candidate.firstName,
+            lastName: interviewRequest.candidate.lastName,
+            email: interviewRequest.candidate.email,
+            phoneNumber: interviewRequest.candidate.phoneNumber,
+          },
+          interview: {
+            result: interviewRequest.interview?.interviewResult.interviewResultName,
+            date: interviewRequest.interview?.date,
+          },
+          contract: {
+            number: interviewRequest.interview?.contract?.number,
+            status: interviewRequest.interview?.contract?.contractStatus.contractStatusName,
+            office: {
+              address: interviewRequest.interview?.contract?.employee.office.address,
+              city: interviewRequest.interview?.contract?.employee.office.city,
+            },
+            monthRate: interviewRequest.interview?.contract?.monthRate,
+            conclusionDate: interviewRequest.interview?.contract?.conclusionDate,
+            startDate: interviewRequest.interview?.contract?.startDate,
+            endDate: interviewRequest.interview?.contract?.endDate,
+          }
+        });
+      }
+
+      const exportVacancy = {
+        number: vacancy.number,
+        status: vacancy.vacancyStatus.vacancyStatusName,
+        position: vacancy.employeePosition.employeePositionName,
+        appearanceDate: vacancy.appearanceDate,
+        monthRate: vacancy.monthRate,
+        description: vacancy.description,
+        interviewRequests: exportInterviewRequests
+      }
+
+      exportVacancies.push(exportVacancy);
+    }
+
+    const jsonString = JSON.stringify(exportVacancies, null, 2);
+    console.log(jsonString)
+    const blob = new Blob([jsonString], { type: 'application/json' });
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vacancies-${this.dateFormatterService.formatDate(new Date())}.json`;
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    window.URL.revokeObjectURL(url);
   }
 }

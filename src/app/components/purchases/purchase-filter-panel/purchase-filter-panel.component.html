@@ -1,0 +1,211 @@
+<div class="filter-panel">
+    <div class="filter-header">
+        <div class="filter-title">
+            <mat-icon>filter_list</mat-icon>
+            <span>Фільтрація / сортування</span>
+        </div>
+        <div class="filter-info" *ngIf="activeFiltersCount > 0">
+            Активних фільтрів: {{ activeFiltersCount }}
+        </div>
+        <button mat-icon-button (click)="closePanel()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <form [formGroup]="filterForm">
+        <div class="filter-container">
+            <!-- Filter by purchase statuses -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Статус закупки</mat-label>
+                <mat-select formControlName="purchaseStatusIds" multiple>
+                    <mat-option *ngFor="let status of purchaseStatuses" [value]="status.id">
+                        {{ status.purchaseStatusName }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <!-- Filter by suppliers -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Постачальник</mat-label>
+                <mat-select formControlName="supplierIds" multiple>
+                    <mat-option *ngFor="let supplier of suppliers" [value]="supplier.id">
+                        {{ supplier.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <!-- Filter by purchase number -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Номер закупки</mat-label>
+                <input matInput formControlName="numberContains">
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('numberContains')?.value"
+                        (click)="filterForm.get('numberContains')?.setValue('')">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <!-- Filter by date (from) -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Дата закупки від</mat-label>
+                <input matInput [matDatepicker]="pickerFrom" formControlName="dateFrom">
+                <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+                <mat-datepicker #pickerFrom></mat-datepicker>
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('dateFrom')?.value"
+                        (click)="filterForm.get('dateFrom')?.setValue(null)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <!-- Filter by date (to) -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Дата закупки до</mat-label>
+                <input matInput [matDatepicker]="pickerTo" formControlName="dateTo">
+                <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
+                <mat-datepicker #pickerTo></mat-datepicker>
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('dateTo')?.value"
+                        (click)="filterForm.get('dateTo')?.setValue(null)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <!-- Filter by total price (from) -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Ціна закупки від</mat-label>
+                <input matInput type="number" formControlName="totalPriceFrom">
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('totalPriceFrom')?.value"
+                        (click)="filterForm.get('totalPriceFrom')?.setValue(null)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <!-- Filter by total price (to) -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Ціна закупки до</mat-label>
+                <input matInput type="number" formControlName="totalPriceTo">
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('totalPriceTo')?.value"
+                        (click)="filterForm.get('totalPriceTo')?.setValue(null)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <!-- Filter by total price (from) -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Кількість обладнання в закупці від</mat-label>
+                <input matInput type="number" formControlName="purchaseEquipmentsCountFrom">
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('purchaseEquipmentsCountFrom')?.value"
+                        (click)="filterForm.get('purchaseEquipmentsCountFrom')?.setValue(null)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <!-- Filter by total price (to) -->
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Кількість обладнання в закупці до</mat-label>
+                <input matInput type="number" formControlName="purchaseEquipmentsCountTo">
+                <button mat-icon-button matSuffix *ngIf="filterForm.get('purchaseEquipmentsCountTo')?.value"
+                        (click)="filterForm.get('purchaseEquipmentsCountTo')?.setValue(null)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+
+        <!-- Sorting -->
+        <div class="sort-container">
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Сортувати за</mat-label>
+                <mat-select formControlName="sortBy">
+                    <mat-option value="purchaseDate">Дата закупки</mat-option>
+                    <mat-option value="purchaseTotalPrice">Ціна закупки</mat-option>
+                    <mat-option value="purchaseEquipmentsCount">Кількість обладнання в закупці</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Напрямок</mat-label>
+                <mat-select formControlName="ascending">
+                    <mat-option [value]="true">За зростанням</mat-option>
+                    <mat-option [value]="false">За спаданням</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <!-- Active filters -->
+        <div class="active-filters" *ngIf="activeFiltersCount > 0">
+            <h4>Активні фільтри:</h4>
+            <div class="chips-container">
+                <ng-container *ngFor="let status of getSelectedPurchaseStatuses()">
+                    <mat-chip (removed)="removeFilter('purchaseStatusIds', status.id)">
+                        Статус закупки: {{ status.purchaseStatusName }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <ng-container *ngFor="let supplier of getSelectedSuppliers()">
+                    <mat-chip (removed)="removeFilter('supplierIds', supplier.id)">
+                        Постачальник: {{ supplier.name }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <ng-container *ngIf="filterForm.get('numberContains')?.value">
+                    <mat-chip (removed)="filterForm.get('numberContains')?.setValue('')">
+                        Номер містить: {{ filterForm.get('numberContains')?.value }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <ng-container *ngIf="filterForm.get('dateFrom')?.value">
+                    <mat-chip (removed)="filterForm.get('dateFrom')?.setValue(null)">
+                        Дата від: {{ formatDate(filterForm.get('dateFrom')?.value) }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <ng-container *ngIf="filterForm.get('dateTo')?.value">
+                    <mat-chip (removed)="filterForm.get('dateTo')?.setValue(null)">
+                        Дата до: {{ formatDate(filterForm.get('dateTo')?.value) }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <ng-container *ngIf="filterForm.get('totalPriceFrom')?.value">
+                    <mat-chip (removed)="filterForm.get('totalPriceFrom')?.setValue(null)">
+                        Ціна від: {{ filterForm.get('totalPriceFrom')?.value | currency }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <ng-container *ngIf="filterForm.get('totalPriceTo')?.value">
+                    <mat-chip (removed)="filterForm.get('totalPriceTo')?.setValue(null)">
+                        Ціна до: {{ filterForm.get('totalPriceTo')?.value | currency }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <ng-container *ngIf="filterForm.get('purchaseEquipmentsCountFrom')?.value">
+                    <mat-chip (removed)="filterForm.get('purchaseEquipmentsCountFrom')?.setValue(null)">
+                        Кількість обладнання від: {{ filterForm.get('purchaseEquipmentsCountFrom')?.value }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+
+                <ng-container *ngIf="filterForm.get('purchaseEquipmentsCountTo')?.value">
+                    <mat-chip (removed)="filterForm.get('purchaseEquipmentsCountTo')?.setValue(null)">
+                        Кількість обладнання до: {{ filterForm.get('purchaseEquipmentsCountTo')?.value }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </ng-container>
+            </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="filter-actions">
+            <button mat-raised-button color="primary" (click)="applyFilters()">
+                <mat-icon>search</mat-icon> Застосувати фільтри
+            </button>
+            <button mat-stroked-button (click)="resetFilters()">
+                <mat-icon>clear</mat-icon> Скинути фільтри
+            </button>
+        </div>
+    </form>
+</div>

@@ -1,23 +1,153 @@
 .purchase-list-container {
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 100px);
+    padding: 24px;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e0e0e0;
 }
 
-.sort-controls {
+.header h1 {
+    font-size: 28px;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+}
+
+.header-actions {
     display: flex;
-    align-items: center;
-    margin-bottom: 20px;
+    gap: 12px;
 }
 
-.purchases-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(1400px, 1fr));
-    gap: 20px;
+.add-button, .filter-button {
+    padding: 0 20px;
+    height: 44px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.add-button:hover, .filter-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+.filter-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background-color: #ff4081;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 8px;
+}
+
+/* Стилі для sidenav контейнера */
+.purchase-sidenav-container {
+    flex: 1;
+    height: 100%;
+    background-color: transparent;
+}
+
+/* Стилі для бічної панелі фільтрації */
+.filters-sidenav {
+    width: 450px;
+    background-color: white;
+    border-right: 1px solid #e0e0e0;
+    box-shadow: 4px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Стилі для основного контенту */
+.purchase-content {
+    padding: 16px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+.masonry-container {
+    position: relative;
+    min-height: 200px;
+}
+
+.masonry-grid {
+    column-count: 3;
+    column-gap: 20px;
+}
+
+.masonry-item {
+    break-inside: avoid;
     margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.masonry-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-container {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Медіа-запити для адаптивності */
+@media (max-width: 2000px) {
+    .masonry-grid {
+        column-count: 2;
+    }
+}
+
+@media (max-width: 1300px) {
+    .masonry-grid {
+        column-count: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-actions {
+        margin-top: 16px;
+        width: 100%;
+    }
+
+    .add-button, .filter-button {
+        flex: 1;
+    }
+
+    .filters-sidenav {
+        width: 100%;
+    }
 }

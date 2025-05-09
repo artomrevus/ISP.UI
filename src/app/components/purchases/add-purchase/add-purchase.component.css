@@ -1,0 +1,152 @@
+/* Стилізація заголовка діалогу */
+.dialog-title {
+    margin: 0;
+    padding: 16px 54px;
+    background-color: #f5f7fa;
+    color: #333;
+    font-size: 20px;
+    font-weight: 500;
+    border-bottom: 1px solid #e0e0e0;
+    border-radius: 8px 8px 0 0;
+}
+
+/* Стилізація вмісту діалогу */
+.dialog-content {
+    padding: 20px 24px;
+    max-height: 70vh;
+}
+
+/* Стилізація форми закупки */
+.purchase-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Стилізація полів форми */
+mat-form-field {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+/* Стилізація секції обладнання */
+.equipment-section {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.equipment-section h3 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+    padding-bottom: 8px;
+    position: relative;
+}
+
+/* Додаємо декоративну лінію під заголовком */
+.equipment-section h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background-color: #2196f3;
+}
+
+/* Стилізація елементів обладнання */
+.equipment-item {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 40px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: rgba(249, 249, 249, 0.62);
+    transition: all 0.2s ease;
+}
+
+.equipment-item:hover {
+    background-color: #f0f0f0;
+}
+
+/* Стилізація кнопки видалення обладнання */
+.equipment-item button[mat-icon-button] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+/* Стилізація кнопки додавання обладнання */
+button[mat-stroked-button] {
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+button[mat-stroked-button]:hover {
+    background-color: rgba(33, 150, 243, 0.1);
+}
+
+button[mat-stroked-button] mat-icon {
+    margin-right: 8px;
+}
+
+/* Стилізація загальної ціни */
+.total-price {
+    margin-top: 24px;
+    padding: 16px;
+    text-align: right;
+    font-size: 18px;
+    color: #333;
+    background-color: #f5f7fa;
+    border-radius: 6px;
+}
+
+/* Стилізація дій діалогу */
+.mat-dialog-actions {
+    padding: 16px 24px;
+    margin-bottom: 0;
+    border-top: 1px solid #e0e0e0;
+    background-color: #f5f7fa;
+    border-radius: 0 0 8px 8px;
+}
+
+/* Стилізація кнопок дій */
+.mat-dialog-actions button {
+    min-width: 100px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.mat-dialog-actions button[mat-raised-button] {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+    transition: all 0.2s ease;
+}
+
+.mat-dialog-actions button[mat-raised-button]:hover:not([disabled]) {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Адаптивність для мобільних пристроїв */
+@media (max-width: 768px) {
+    .equipment-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .equipment-item button[mat-icon-button] {
+        margin-top: 8px;
+        width: 100%;
+        border-radius: 4px;
+    }
+}

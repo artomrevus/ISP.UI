@@ -31,13 +31,13 @@ export class LoginComponent {
         this.router.navigate(['human-resource/login']);
         break;
       case 'warehouse':
-        this.router.navigate(['network-technician/login']);
+        this.router.navigate(['warehouse-worker/login']);
         break;
       case 'manager':
         this.router.navigate(['office-manager/login']);
         break;
       case 'admin':
-        this.router.navigate(['network-technician/login']);
+        this.router.navigate(['admin/login']);
         break;
       default:
         this.router.navigate(['/']);

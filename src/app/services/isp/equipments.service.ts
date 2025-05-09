@@ -37,4 +37,25 @@ export class EquipmentsService {
 
     return fullEquipment;
   }
+
+  async getFull(): Promise<FullEquipment[]> {
+    const equipmentDtos = await this.get();
+
+    const fullEquipments: FullEquipment[] = [];
+    for(const equipmentDto of equipmentDtos){
+      const fullEquipmentType = await this.equipmentTypesService.getByIdFull(equipmentDto.equipmentTypeId);
+
+      const fullEquipment = {
+        id: equipmentDto.id,
+        name: equipmentDto.name,
+        price: equipmentDto.price,
+        equipmentTypeId: equipmentDto.equipmentTypeId,
+        equipmentType: fullEquipmentType
+      }
+
+      fullEquipments.push(fullEquipment);
+    }
+
+    return fullEquipments;
+  }
 }

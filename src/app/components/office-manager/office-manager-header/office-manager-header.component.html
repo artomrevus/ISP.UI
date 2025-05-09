@@ -1,0 +1,16 @@
+<mat-toolbar color="primary" class="header">
+    <div class="header-left">
+        <a mat-button routerLink="/login" routerLinkActive="active-link" class="logo">ISP</a>
+        <nav class="nav-links">
+            <a mat-button routerLink="/office-manager/purchases" routerLinkActive="active-link">Закупки</a>
+            <a mat-button routerLink="/office-manager/monitoring" routerLinkActive="active-link">Моніторинг</a>
+        </nav>
+    </div>
+
+    <div class="header-right">
+        <span class="user-name">{{ employeeFullName }}</span>
+        <button mat-icon-button aria-label="User menu" (click)="logout()">
+            <mat-icon>logout</mat-icon>
+        </button>
+    </div>
+</mat-toolbar>

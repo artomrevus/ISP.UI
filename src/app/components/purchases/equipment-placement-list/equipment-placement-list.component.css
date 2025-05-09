@@ -1,13 +1,199 @@
 .placement-list {
     margin-bottom: 16px;
+    overflow-x: auto; /* Додаємо горизонтальну прокрутку для таблиці */
+}
+
+.placement-list h3 {
+    margin: 0 0 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+    padding-bottom: 8px;
+    position: relative;
+}
+
+.placement-list h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 2px;
+    background-color: #2196f3;
 }
 
 .no-data {
     padding: 16px;
     text-align: center;
     color: rgba(0, 0, 0, 0.54);
+    font-style: italic;
+    background-color: #f9f9f9;
+    border-radius: 6px;
 }
 
 table {
     width: 100%;
+    border-collapse: collapse;
+}
+
+/* Стилізація заголовків таблиці */
+th.mat-header-cell {
+    font-weight: 500;
+    color: #333;
+    background-color: #f5f5f5;
+    padding: 12px 8px !important;
+}
+
+/* Стилізація комірок таблиці */
+td.mat-cell {
+    padding: 12px 8px !important;
+    vertical-align: middle;
+}
+
+/* Стилізація рядків таблиці */
+tr.mat-row {
+    height: auto;
+    transition: background-color 0.2s ease;
+}
+
+tr.mat-row:hover {
+    background-color: #f9f9f9;
+}
+
+/* Стилізація полів форми в таблиці */
+td.mat-cell mat-form-field {
+    width: 100%;
+    margin: -16px 0; /* Зменшуємо відступи форми */
+}
+
+/* Зменшуємо розмір полів вводу в таблиці */
+td.mat-cell .mat-form-field-wrapper {
+    padding-bottom: 0;
+}
+
+td.mat-cell .mat-form-field-infix {
+    padding: 0.5em 0;
+    width: auto;
+}
+
+td.mat-cell .mat-form-field-flex {
+    padding: 0 0.5em;
+}
+
+/* Стилізація для поля дати */
+td.mat-cell mat-form-field input[matDatepicker] {
+    min-width: 100px;
+}
+
+/* Стилізація для поля кількості */
+td.mat-cell mat-form-field input[type="number"] {
+    min-width: 60px;
+}
+
+/* Стилізація кнопок дій */
+td.mat-cell button[mat-icon-button] {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    margin: 0 2px;
+}
+
+td.mat-cell button[mat-icon-button] mat-icon {
+    font-size: 18px;
+    line-height: 18px;
+    height: 18px;
+    width: 18px;
+}
+
+/* Стилізація для колонки дій */
+.mat-column-edit {
+    width: 100px;
+    text-align: center;
+}
+
+/* Адаптивність для мобільних пристроїв */
+@media (max-width: 768px) {
+    .mat-table {
+        border: 0;
+        vertical-align: middle;
+    }
+
+    .mat-table caption {
+        font-size: 1em;
+    }
+
+    /* Приховуємо заголовки на мобільних */
+    .mat-table .mat-header-row {
+        display: none;
+    }
+
+    /* Змінюємо відображення рядків на мобільних */
+    .mat-table .mat-row {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        padding: 12px 0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* Додаємо підписи для кожної комірки на мобільних */
+    .mat-table .mat-cell {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 0;
+        padding: 8px 16px !important;
+    }
+
+    .mat-table .mat-cell:before {
+        content: attr(data-label);
+        font-weight: 500;
+        padding-right: 8px;
+    }
+
+    /* Стилізація для колонки дій на мобільних */
+    .mat-table .mat-column-edit {
+        justify-content: flex-end;
+        width: 100%;
+    }
+
+    .mat-table .mat-column-edit:before {
+        display: none;
+    }
+}
+
+/* Стилізація для режиму редагування */
+tr.editing-row {
+    background-color: rgba(33, 150, 243, 0.05);
+}
+
+/* Стилізація для помилок валідації */
+.mat-error {
+    font-size: 12px;
+}
+
+.compact-form {
+    margin: 0;
+    padding: 0;
+}
+
+.compact-form .mat-form-field-wrapper {
+    margin: 0;
+    padding: 0;
+}
+
+.compact-form .mat-form-field-appearance-outline .mat-form-field-infix {
+    padding: 0.5em 0;
+}
+
+.compact-form .mat-form-field-subscript-wrapper {
+    margin-top: 0;
+    font-size: 11px;
+}
+
+.compact-form .mat-form-field-appearance-outline .mat-form-field-flex {
+    padding: 0 0.5em;
+    height: 40px;
 }

@@ -1,9 +1,9 @@
 export interface FullEquipmentType {
     id: number;
-    EquipmentTypeName: string;
+    equipmentTypeName: string;
   }
 
   export interface EquipmentTypeDto {
     id: number;
-    EquipmentTypeName: string;
+    equipmentTypeName: string;
   }

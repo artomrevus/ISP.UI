@@ -1,7 +1,3 @@
-<!-- Header -->
-<app-human-resource-header></app-human-resource-header>
-
-<!-- Body -->
 <div class="vacancies-container">
 
     <!-- Body header -->
@@ -9,6 +5,10 @@
         <h1>Вакансії</h1>
 
         <div class="actions">
+            <button mat-raised-button color="primary" (click)="exportAsJson()">
+                <mat-icon>upload_file</mat-icon>
+                Експортувати
+            </button>
             <button mat-raised-button color="primary" (click)="openVacancyForm()">
                 <mat-icon>add</mat-icon>
                 Створити вакансію

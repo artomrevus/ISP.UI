@@ -1,0 +1,44 @@
+/* Стилізація форми розміщення */
+.placement-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Стилізація полів форми */
+.placement-form mat-form-field {
+    width: 100%;
+    margin-top: 16px;
+}
+
+/* Стилізація останнього поля форми */
+.placement-form mat-form-field:last-child {
+    margin-bottom: 0;
+}
+
+/* Стилізація вводу для кількості */
+.placement-form input[type="number"] {
+    font-size: 16px;
+}
+
+/* Стилізація вводу для дати */
+.placement-form input[matDatepicker] {
+    font-size: 16px;
+}
+
+/* Стилізація кнопок дій */
+mat-dialog-actions button {
+    min-width: 100px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+mat-dialog-actions button[mat-raised-button] {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+    transition: all 0.2s ease;
+}
+
+mat-dialog-actions button[mat-raised-button]:hover:not([disabled]) {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}

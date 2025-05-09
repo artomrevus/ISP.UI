@@ -9,7 +9,6 @@ import { HumanResourceHeaderComponent } from '../human-resource-header/human-res
     HumanResourceHeaderComponent
   ],
   templateUrl: './human-resource-monitoring.component.html',
-  styleUrl: './human-resource-monitoring.component.css'
 })
 export class HumanResourceMonitoringComponent {
 

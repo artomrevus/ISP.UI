@@ -9,7 +9,6 @@ import { NetworkTechnicianHeaderComponent } from '../network-technician-header/n
     NetworkTechnicianHeaderComponent
   ],
   templateUrl: './network-technician-monitoring.component.html',
-  styleUrl: './network-technician-monitoring.component.css'
 })
 export class NetworkTechnicianMonitoringComponent {
 

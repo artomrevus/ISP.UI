@@ -9,14 +9,20 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { EquipmentPlacementsService } from '../../../services/isp/equipment-placements.service';
-import {FullEquipmentPlacement} from '../../../models/isp/equipment-placement.models';
+import {EquipmentPlacementDto, FullEquipmentPlacement} from '../../../models/isp/equipment-placement.models';
 import {FullOffice} from "../../../models/isp/office.models";
 import {OfficeEquipmentsService} from "../../../services/isp/office-equipments.service";
 import {OfficesService} from "../../../services/isp/offices.service";
 import {MatSelectModule} from "@angular/material/select";
-import {PurchaseEquipmentsService} from "../../../services/isp/purchase-equipments.service";
 import {OfficeEquipmentDto} from "../../../models/isp/office-equipment.models";
-
+import {FullPurchaseEquipment} from "../../../models/isp/purchase-equipments.models";
+import {AuthRoles} from "../../../models/auth/auth-roles.model";
+import {AuthEmployeeService} from "../../../services/auth/auth-employee.service";
+import {AddUserActivityDto} from "../../../models/monitoring/activity.models";
+import {firstValueFrom} from "rxjs";
+import {MonitoringService} from "../../../services/monitoring/monitoring.service";
+import {PurchaseEquipmentsService} from "../../../services/isp/purchase-equipments.service";
+import {EquipmentsService} from "../../../services/isp/equipments.service";
 
 @Component({
   selector: 'app-equipment-placement-list',
@@ -38,31 +44,39 @@ import {OfficeEquipmentDto} from "../../../models/isp/office-equipment.models";
   styleUrl: './equipment-placement-list.component.css'
 })
 export class EquipmentPlacementListComponent implements OnInit {
-  @Input() purchaseEquipmentId!: number;
-  
-  placements: FullEquipmentPlacement[] = [];
+  @Input() purchaseEquipment!: FullPurchaseEquipment;
+  @Input() equipmentPlacements!: FullEquipmentPlacement[];
+
   offices: FullOffice[] = [];
-  displayedColumns: string[] = ['office', 'date', 'amount', 'edit'];
   
   editingPlacementId: number | null = null;
   editForm!: FormGroup;
+
+  employeeRole: string = '';
+  AuthRoles = AuthRoles;
 
   constructor(
     private fb: FormBuilder,
     private equipmentPlacementsService: EquipmentPlacementsService,
     private officesService: OfficesService,
     private officesEquipmentsService: OfficeEquipmentsService,
-    private purchaseEquipmentsService:  PurchaseEquipmentsService,
+    private authEmployeeService: AuthEmployeeService,
+    private monitoringService: MonitoringService,
+    private purchaseEquipmentsService: PurchaseEquipmentsService,
+    private equipmentsService: EquipmentsService,
   ) {}
 
   ngOnInit(): void {
-    this.loadPlacements();
+    this.loadEmployeeRole();
     this.loadOffices();
     this.initForm();
   }
 
-  async loadPlacements(): Promise<void> {
-    this.placements = await this.equipmentPlacementsService.getByPurchaseEquipmentFull(this.purchaseEquipmentId);
+  async loadEmployeeRole() {
+    const login = this.authEmployeeService.getLogin();
+    if (login) {
+      this.employeeRole = login.role;
+    }
   }
 
   async loadOffices(): Promise<void> {
@@ -71,9 +85,8 @@ export class EquipmentPlacementListComponent implements OnInit {
 
   initForm(): void {
     this.editForm = this.fb.group({
-      equipmentPlacementAmount: [null, [Validators.required]],
-      date: [new Date(), Validators.required],
-      officeId: [null, [Validators.required]],
+      equipmentPlacementAmount: [null, [Validators.required, Validators.min(1)]],
+      date: [new Date(), [Validators.required]]
     });
   }
 
@@ -81,8 +94,7 @@ export class EquipmentPlacementListComponent implements OnInit {
     this.editingPlacementId = placement.id;
     this.editForm.patchValue({
       equipmentPlacementAmount: placement.equipmentPlacementAmount,
-      date: new Date(placement.date),
-      officeId: placement.officeEquipment?.officeId
+      date: new Date(placement.date)
     });
   }
 
@@ -95,7 +107,8 @@ export class EquipmentPlacementListComponent implements OnInit {
       const formValue = this.editForm.value;
 
       // Find placement
-      let placementToUpdate = this.placements.find(x => x.id === this.editingPlacementId);
+      let placementToUpdate = this.equipmentPlacements.find(
+          x => x.id === this.editingPlacementId);
 
       if (!placementToUpdate || !placementToUpdate.officeEquipment) {
         console.error('Placement or its data not found.');
@@ -103,30 +116,16 @@ export class EquipmentPlacementListComponent implements OnInit {
       }
 
       // Placement data
-      const newOfficeId = formValue.officeId;
-      const oldOfficeId = placementToUpdate.officeEquipment.officeId;
-      const equipmentId = placementToUpdate.officeEquipment.equipmentId;
       const newPlacementAmount = formValue.equipmentPlacementAmount;
       const oldPlacementAmount = placementToUpdate.equipmentPlacementAmount;
       const newDate = this.formatDate(formValue.date)
 
-      await this.EnsureEnoughPurchaseEquipmentToPlace(placementToUpdate.id, newPlacementAmount);
-
-      // Find office equipment
-      let placementOfficeEquipment = await this.officesEquipmentsService.get(newOfficeId, equipmentId);
-      if (!placementOfficeEquipment) {
-        placementOfficeEquipment = await this.officesEquipmentsService.create({
-          officeId: newOfficeId,
-          equipmentId: equipmentId,
-          officeEquipmentAmount: 0
-        });
-      }
+      this.EnsureEnoughPurchaseEquipmentToPlace(placementToUpdate.id, newPlacementAmount);
 
       // Updated placement office equipment
-      await this.updatePlacementOfficeEquipment(placementOfficeEquipment, newOfficeId, oldOfficeId, equipmentId, newPlacementAmount, oldPlacementAmount);
+      await this.updatePlacementOfficeEquipment(placementToUpdate.officeEquipment, newPlacementAmount, oldPlacementAmount);
 
       // Set updated values
-      placementToUpdate.officeEquipmentId = placementOfficeEquipment.id;
       placementToUpdate.date = newDate;
       placementToUpdate.equipmentPlacementAmount = newPlacementAmount;
 
@@ -135,81 +134,47 @@ export class EquipmentPlacementListComponent implements OnInit {
 
       // Finish update
       this.editingPlacementId = null;
+
+      // Log activity
+      const activity: AddUserActivityDto = {
+        actionOn: 'Розміщення',
+        action: 'Оновлення розміщення',
+        details: await this.formatUpdateActivityDetails(placementToUpdate)
+      };
+
+      await firstValueFrom(this.monitoringService.logActivity(activity));
     }
   }
 
-  async EnsureEnoughPurchaseEquipmentToPlace(placementToUpdateId: number, newPlacementAmount: number): Promise<void> {
-    const purchaseEquipment = await this.purchaseEquipmentsService.getById(this.purchaseEquipmentId);
-
+  EnsureEnoughPurchaseEquipmentToPlace(placementToUpdateId: number, newPlacementAmount: number) {
     let totalPlacementsCount = 0;
-    for (let equipmentPlacement of this.placements.filter(x => x.id !== placementToUpdateId)) {
+    for (let equipmentPlacement of this.equipmentPlacements.filter(x => x.id !== placementToUpdateId)) {
       totalPlacementsCount += equipmentPlacement.equipmentPlacementAmount;
     }
 
     totalPlacementsCount += newPlacementAmount;
 
-    if (totalPlacementsCount > purchaseEquipment.purchaseEquipmentAmount) {
+    if (totalPlacementsCount > this.purchaseEquipment.purchaseEquipmentAmount) {
       alert('Не можна розмістити більше обладнання, ніж закуплено.');
       throw new Error('Cant be placed more than in purchase equipment.');
     }
   }
 
   async updatePlacementOfficeEquipment(
-      placementOfficeEquipment: OfficeEquipmentDto,
-      newOfficeId: number,
-      oldOfficeId: number,
-      equipmentId: number,
+      officeEquipment: OfficeEquipmentDto,
       newPlacementAmount: number,
       oldPlacementAmount: number)
   {
-    if (newOfficeId === oldOfficeId) {
-      await this.updateOfficeSamePlacementOfficeEquipment(
-          placementOfficeEquipment, newPlacementAmount, oldPlacementAmount);
-    } else {
-      await this.updateOfficeChangedPlacementOfficeEquipment(
-          placementOfficeEquipment, oldOfficeId, equipmentId, newPlacementAmount, oldPlacementAmount);
-    }
-  }
-
-  async updateOfficeSamePlacementOfficeEquipment(
-      placementOfficeEquipment: OfficeEquipmentDto,
-      newPlacementAmount: number,
-      oldPlacementAmount: number)
-  {
-    const officeEquipmentAmount = placementOfficeEquipment.officeEquipmentAmount;
+    const officeEquipmentAmount = officeEquipment.officeEquipmentAmount;
     const officeEquipmentDiff = oldPlacementAmount - newPlacementAmount;
 
-    if (placementOfficeEquipment.officeEquipmentAmount < officeEquipmentDiff){
+    if (officeEquipment.officeEquipmentAmount < officeEquipmentDiff){
       alert(`Не можна виконати цю дію. В обраному офісі залишилося ${officeEquipmentAmount} од. обраного обладнання.`);
       throw new Error('Cant perform action. In selected office not enough equipment.');
     }
 
-    placementOfficeEquipment.officeEquipmentAmount -= officeEquipmentDiff;
-    await this.officesEquipmentsService.update(placementOfficeEquipment);
-  }
-
-  async updateOfficeChangedPlacementOfficeEquipment(
-      placementOfficeEquipment: OfficeEquipmentDto,
-      oldOfficeId: number,
-      equipmentId: number,
-      newPlacementAmount: number,
-      oldPlacementAmount: number)
-  {
-    let prevOfficeEquipment= await this.officesEquipmentsService.get(oldOfficeId, equipmentId);
-    if (!prevOfficeEquipment) {
-      throw new Error('Office equipment not found.');
-    }
-
-    if (prevOfficeEquipment.officeEquipmentAmount < oldPlacementAmount) {
-      alert(`Не можна виконати цю дію. В обраному офісі залишилося ${prevOfficeEquipment.officeEquipmentAmount} од. обраного обладнання.`);
-      throw new Error('Cant perform action. In selected office not enough equipment.');
-    }
-
-    placementOfficeEquipment.officeEquipmentAmount += newPlacementAmount;
-    await this.officesEquipmentsService.update(placementOfficeEquipment);
-
-    prevOfficeEquipment.officeEquipmentAmount -= oldPlacementAmount;
-    await this.officesEquipmentsService.update(prevOfficeEquipment);
+    officeEquipment.officeEquipmentAmount -= officeEquipmentDiff;
+    await this.officesEquipmentsService.update(officeEquipment);
   }
 
   formatDate(date: Date | string): string {
@@ -225,14 +190,71 @@ export class EquipmentPlacementListComponent implements OnInit {
   }
 
   async deletePlacement(placement: FullEquipmentPlacement) {
-    const officeEquipment = await this.officesEquipmentsService.getById(placement.officeEquipmentId);
+    if (!placement.officeEquipment){
+      console.error('Placement office equipment not found.');
+      return;
+    }
 
-    if (officeEquipment.officeEquipmentAmount < placement.equipmentPlacementAmount) {
-      alert(`Не можна виконати цю дію. В обраному офісі залишилося ${officeEquipment.officeEquipmentAmount} од. обраного обладнання.`);
+    // Check is valid
+    if (placement.officeEquipment.officeEquipmentAmount < placement.equipmentPlacementAmount) {
+      alert(`Не можна виконати цю дію. В обраному офісі залишилося ${placement.officeEquipment.officeEquipmentAmount} од. обраного обладнання.`);
       throw new Error('Cant perform action. In selected office not enough equipment.');
     }
 
+    // Update office equipment
+    placement.officeEquipment.officeEquipmentAmount -= placement.equipmentPlacementAmount;
+    await this.officesEquipmentsService.update(placement.officeEquipment);
+
+    // Delete placement
     await this.equipmentPlacementsService.delete(placement.id);
-    this.placements = this.placements.filter(x => x.id !== placement.id);
+
+    // Update data
+    this.equipmentPlacements = this.equipmentPlacements.filter(x => x.id !== placement.id);
+    this.purchaseEquipment.equipmentPlacements = this.equipmentPlacements;
+
+    // Log activity
+    const activity: AddUserActivityDto = {
+      actionOn: 'Розміщення',
+      action: 'Видалення розміщення',
+      details: await this.formatDeleteActivityDetails(placement)
+    };
+
+    await firstValueFrom(this.monitoringService.logActivity(activity));
+  }
+
+  async formatUpdateActivityDetails(equipmentPlacement: FullEquipmentPlacement) {
+    let details = `Оновлене розміщення:\n`;
+
+    details += ` - Дата розміщення: ${equipmentPlacement.date}.\n`
+
+    const office = equipmentPlacement.officeEquipment?.office;
+    details += ` - Офіс: ${office?.address} (${office?.city.cityName}).\n`;
+
+    const purchaseEquipment = await this.purchaseEquipmentsService.getById(equipmentPlacement.purchaseEquipmentId);
+    const equipment = await firstValueFrom(this.equipmentsService.getById(purchaseEquipment.equipmentId));
+
+    details += ` - Назва обладнання: ${equipment.name}.\n`;
+    details += ` - Кількість обладнання: ${equipmentPlacement.equipmentPlacementAmount}.\n`
+    details += ` - Ціна обладнання: $${purchaseEquipment.price}.\n`
+
+    return details;
+  }
+
+  private async formatDeleteActivityDetails(placement: FullEquipmentPlacement) {
+    let details = `Видалене розміщення:\n`;
+
+    details += ` - Дата розміщення: ${placement.date}.\n`
+
+    const office = placement.officeEquipment?.office;
+    details += ` - Офіс: ${office?.address} (${office?.city.cityName}).\n`;
+
+    const purchaseEquipment = await this.purchaseEquipmentsService.getById(placement.purchaseEquipmentId);
+    const equipment = await firstValueFrom(this.equipmentsService.getById(purchaseEquipment.equipmentId));
+
+    details += ` - Назва обладнання: ${equipment.name}.\n`;
+    details += ` - Кількість обладнання: ${placement.equipmentPlacementAmount}.\n`
+    details += ` - Ціна обладнання: $${purchaseEquipment.price}.\n`
+
+    return details;
   }
 }

@@ -1,14 +1,10 @@
 <mat-card class="purchase-card">
     <mat-card-header>
-        <mat-card-title>
-            <span *ngIf="!isEditing">Purchase #{{ purchase.number }}</span>
-            <span *ngIf="isEditing">Edit Purchase</span>
-        </mat-card-title>
         <mat-card-subtitle>
-            <span [ngClass]="getStatusClass()">{{ getStatusName() }}</span>
+            <span [ngClass]="getStatusClass()">{{ purchase.purchaseStatus?.purchaseStatusName }}</span>
         </mat-card-subtitle>
         <div class="card-actions">
-            <button mat-icon-button *ngIf="!isEditing" (click)="toggleEdit()">
+            <button mat-icon-button *ngIf="employeeRole === AuthRoles_.OFFICE_MANAGER && !isEditing" (click)="toggleEdit()">
                 <mat-icon>edit</mat-icon>
             </button>
         </div>
@@ -16,23 +12,28 @@
 
     <mat-card-content>
         <div *ngIf="!isEditing" class="purchase-details">
+            <div class="purchase-number">#{{ purchase.number }}</div>
             <div class="detail-row">
-                <span class="label">Supplier:</span>
-                <span>{{ getSupplier()?.name }}</span>
+                <span class="label">Працівник, що виконав:</span>
+                <span class="value">{{ `${purchase.employee?.firstName} ${purchase.employee?.lastName}` }}</span>
             </div>
             <div class="detail-row">
-                <span class="label">Date:</span>
-                <span>{{ purchase.date | date:'mediumDate' }}</span>
+                <span class="label">Постачальник:</span>
+                <span class="value">{{ purchase.supplier?.name }}</span>
             </div>
             <div class="detail-row">
-                <span class="label">Total Price:</span>
-                <span>{{ purchase.totalPrice | currency }}</span>
+                <span class="label">Дата:</span>
+                <span class="value">{{ purchase.date | date:'mediumDate' }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Загальна ціна:</span>
+                <span class="value">{{ purchase.totalPrice | currency }}</span>
             </div>
         </div>
 
         <form *ngIf="isEditing" [formGroup]="editForm" class="edit-form">
             <mat-form-field appearance="outline">
-                <mat-label>Supplier</mat-label>
+                <mat-label>Постачальник</mat-label>
                 <mat-select formControlName="supplierId">
                     <mat-option *ngFor="let supplier of suppliers" [value]="supplier.id">
                         {{ supplier.name }}
@@ -41,42 +42,82 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-                <mat-label>Date</mat-label>
+                <mat-label>Дата</mat-label>
                 <input matInput [matDatepicker]="picker" formControlName="date">
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
             </mat-form-field>
 
+            <div class="equipment-section" *ngIf="purchase.purchaseStatus?.purchaseStatusName !== PurchaseStatus.DELIVERED">
+                <h3>Обладнання</h3>
+
+                <div formArrayName="equipments">
+                    <div *ngFor="let equipment of equipmentsFormArray.controls; let i = index" [formGroupName]="i" class="equipment-item">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Обладнання</mat-label>
+                            <mat-select formControlName="equipmentId" (selectionChange)="updatePrice(i)">
+                                <mat-option *ngFor="let eq of availableEquipment" [value]="eq.id">
+                                    {{ eq.name }} - {{ eq.price | currency }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                            <mat-label>Кількість</mat-label>
+                            <input matInput formControlName="amount" type="number" (input)="updateTotalPrice()">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                            <mat-label>Ціна</mat-label>
+                            <input matInput formControlName="price" type="number" readonly>
+                        </mat-form-field>
+
+                        <button mat-icon-button color="warn" type="button" (click)="removeEquipment(i)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+
+                    <button mat-stroked-button type="button" (click)="addEquipment()">
+                        <mat-icon>add</mat-icon> Додати обладнання
+                    </button>
+                </div>
+            </div>
+
+            <div class="total-price" *ngIf="purchase.purchaseStatus?.purchaseStatusName !== PurchaseStatus.DELIVERED">
+                <strong>Загальна ціна: {{ totalPrice | currency }}</strong>
+            </div>
+
             <div class="form-actions">
-                <button mat-button color="warn" (click)="cancelEdit()">Cancel</button>
-                <button mat-raised-button color="primary" [disabled]="editForm.invalid" (click)="saveChanges()">Save</button>
+                <button mat-button color="warn" (click)="cancelEdit()">Скасувати</button>
+                <button mat-raised-button color="primary" [disabled]="editForm.invalid" (click)="saveChanges()">Зберегти</button>
             </div>
         </form>
 
-        <app-purchase-equipment-list
-                [purchaseId]="purchase.id"
-                [isDelivered]="getStatusName() === PurchaseStatus.DELIVERED">
+        <app-purchase-equipment-list *ngIf="!isEditing"
+                                     [purchaseEquipments]="purchase.purchaseEquipments || []"
+                                     [purchase]="purchase"
+                                     [isPurchaseDelivered]="purchase.purchaseStatus?.purchaseStatusName === PurchaseStatus.DELIVERED">
         </app-purchase-equipment-list>
     </mat-card-content>
 
-    <mat-card-actions *ngIf="!isEditing" align="end">
-        <ng-container [ngSwitch]="getStatusName()">
+    <mat-card-actions *ngIf="employeeRole === AuthRoles_.OFFICE_MANAGER && !isEditing" align="end">
+        <ng-container [ngSwitch]="purchase.purchaseStatus?.purchaseStatusName">
             <!-- Requested status -->
             <ng-container *ngSwitchCase="PurchaseStatus.REQUESTED">
-                <button mat-button color="primary" (click)="changeStatus(PurchaseStatus.APPROVED)">Approve</button>
-                <button mat-button color="warn" (click)="changeStatus(PurchaseStatus.CANCELED)">Cancel</button>
+                <button mat-raised-button color="primary" (click)="changeStatus(PurchaseStatus.APPROVED)">Підтвердити закупку</button>
+                <button mat-raised-button color="warn" (click)="changeStatus(PurchaseStatus.CANCELED)">Скасувати закупку</button>
             </ng-container>
 
             <!-- Approved status -->
             <ng-container *ngSwitchCase="PurchaseStatus.APPROVED">
-                <button mat-button color="primary" (click)="changeStatus(PurchaseStatus.IN_TRANSIT)">In Transit</button>
-                <button mat-button color="warn" (click)="changeStatus(PurchaseStatus.CANCELED)">Cancel</button>
+                <button mat-raised-button color="primary" (click)="changeStatus(PurchaseStatus.IN_TRANSIT)">В дорозі</button>
+                <button mat-raised-button color="warn" (click)="changeStatus(PurchaseStatus.CANCELED)">Скасувати закупку</button>
             </ng-container>
 
             <!-- In Transit status -->
             <ng-container *ngSwitchCase="PurchaseStatus.IN_TRANSIT">
-                <button mat-button color="primary" (click)="changeStatus(PurchaseStatus.DELIVERED)">Mark Delivered</button>
-                <button mat-button color="warn" (click)="changeStatus(PurchaseStatus.CANCELED)">Cancel</button>
+                <button mat-raised-button color="primary" (click)="changeStatus(PurchaseStatus.DELIVERED)">Доставлено</button>
+                <button mat-raised-button color="warn" (click)="changeStatus(PurchaseStatus.CANCELED)">Скасувати закупку</button>
             </ng-container>
         </ng-container>
     </mat-card-actions>

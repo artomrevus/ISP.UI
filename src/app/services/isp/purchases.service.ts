@@ -1,20 +1,31 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {
-  AddPurchaseDto,
+  AddPurchaseDto, FullPurchase,
   PurchaseDto,
   PurchaseFilterParameters,
   PurchaseSortOptions
 } from "../../models/isp/purchase.models";
 import {firstValueFrom} from "rxjs";
 import {environment} from "../../../environments/environment.development";
+import {FullInternetConnectionRequest} from "../../models/isp/internet-connection-request.models";
+import {PurchaseStatusesService} from "./purchase-statuses.service";
+import {SuppliersService} from "./suppliers.service";
+import {EmployeesService} from "./employees.service";
+import {PurchaseEquipmentsService} from "./purchase-equipments.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PurchasesService {
 
-  constructor(private http: HttpClient) { }
+  constructor(
+      private http: HttpClient,
+      private purchaseStatusesService:  PurchaseStatusesService,
+      private suppliersService:  SuppliersService,
+      private employeesService: EmployeesService,
+      private purchaseEquipmentsService: PurchaseEquipmentsService,
+      ) { }
 
   async get(
       filter: PurchaseFilterParameters,
@@ -87,5 +98,68 @@ export class PurchasesService {
 
   update(dto: PurchaseDto): Promise<PurchaseDto> {
     return firstValueFrom(this.http.put<PurchaseDto>(`${environment.apiBaseUrl}/purchases/${dto.id}`, dto));
+  }
+
+  async getFull(
+      filter: PurchaseFilterParameters,
+      sort: PurchaseSortOptions,
+      pageNumber: number,
+      pageSize: number
+  ): Promise<{ items: FullPurchase[], totalCount: number }> {
+    const getResponse = await this.get(filter, sort, pageNumber, pageSize);
+    const purchaseDtos = getResponse.items;
+
+    const fullPurchases: FullPurchase[] = [];
+
+    for (const purchaseDto of purchaseDtos) {
+      const fullPurchaseStatus = await this.purchaseStatusesService.getByIdFull(purchaseDto.purchaseStatusId);
+      const fullSupplier = await this.suppliersService.getByIdFull(purchaseDto.supplierId);
+      const fullEmployee = await this.employeesService.getByIdFull(purchaseDto.employeeId);
+      const fullPurchaseEquipments = await this.purchaseEquipmentsService.getByPurchaseFull(purchaseDto.id);
+
+      const fullPurchase: FullPurchase = {
+        id: purchaseDto.id,
+        purchaseStatusId: purchaseDto.purchaseStatusId,
+        supplierId: purchaseDto.supplierId,
+        employeeId: purchaseDto.employeeId,
+        number: purchaseDto.number,
+        totalPrice: purchaseDto.totalPrice,
+        date: purchaseDto.date,
+        purchaseStatus: fullPurchaseStatus,
+        supplier: fullSupplier,
+        employee: fullEmployee,
+        purchaseEquipments: fullPurchaseEquipments
+      };
+
+      fullPurchases.push(fullPurchase);
+    }
+
+    return {
+      items: fullPurchases,
+      totalCount: getResponse.totalCount
+    };
+  }
+
+  async getByIdFull(id: number): Promise<FullPurchase> {
+    const purchaseDto = await this.getById(id);
+
+    const fullPurchaseStatus = await this.purchaseStatusesService.getByIdFull(purchaseDto.purchaseStatusId);
+    const fullSupplier = await this.suppliersService.getByIdFull(purchaseDto.supplierId);
+    const fullEmployee = await this.employeesService.getByIdFull(purchaseDto.employeeId);
+    const fullPurchaseEquipments = await this.purchaseEquipmentsService.getByPurchaseFull(purchaseDto.id);
+
+    return {
+      id: purchaseDto.id,
+      purchaseStatusId: purchaseDto.purchaseStatusId,
+      supplierId: purchaseDto.supplierId,
+      employeeId: purchaseDto.employeeId,
+      number: purchaseDto.number,
+      totalPrice: purchaseDto.totalPrice,
+      date: purchaseDto.date,
+      purchaseStatus: fullPurchaseStatus,
+      supplier: fullSupplier,
+      employee: fullEmployee,
+      purchaseEquipments: fullPurchaseEquipments
+    };
   }
 }
