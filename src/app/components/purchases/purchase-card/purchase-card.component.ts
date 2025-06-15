@@ -220,7 +220,7 @@ export class PurchaseCardComponent implements OnInit {
       // Log activity
       const activity: AddUserActivityDto = {
         actionOn: 'Закупки',
-        action: 'Оновлення закупки',
+        action: 'Оновлення',
         details: this.formatUpdateActivityDetails(this.purchase)
       };
 
@@ -270,7 +270,7 @@ export class PurchaseCardComponent implements OnInit {
     // Log activity
     const activity: AddUserActivityDto = {
       actionOn: 'Закупки',
-      action: 'Оновлення статусу закупки',
+      action: 'Оновлення статусу',
       details: this.formatUpdateStatusActivityDetails(this.purchase)
     };
 

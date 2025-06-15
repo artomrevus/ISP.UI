@@ -16,16 +16,16 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
-import { FullInternetConnectionRequest, InternetConnectionRequestDto } from '../../../models/isp/internet-connection-request.models';
+import { AddInternetConnectionRequestDto, FullInternetConnectionRequest, InternetConnectionRequestDto } from '../../../models/isp/internet-connection-request.models';
 import { InternetConnectionRequestsService } from '../../../services/isp/internet-connection-requests.service';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { InternetConnectionRequestStatusesService } from '../../../services/isp/internet-connection-request-statuses.service';
-import { FullInternetConnectionRequestStatus, InternetConnectionRequestStatusDto } from '../../../models/isp/internet-connection-request-status.models';
+import { FullInternetConnectionRequestStatus, InternetConnectionRequestStatus, InternetConnectionRequestStatusDto } from '../../../models/isp/internet-connection-request-status.models';
 import { AddConnectionDto, ConnectionDto } from '../../../models/isp/connection.models';
 import { FullConnectionTariff } from '../../../models/isp/connection-tariff.models';
 import { AddConnectionEquipmentDto, ConnectionEquipmentDto, FullConnectionEquipment } from '../../../models/isp/connection-equipment.models';
 import { FullOfficeEquipment } from '../../../models/isp/office-equipment.models';
-import { MatListModule } from '@angular/material/list'; 
+import { MatListModule } from '@angular/material/list';
 import { ConnectionTariffsService } from '../../../services/isp/connection-tariffs.service';
 import { AuthEmployeeService } from '../../../services/auth/auth-employee.service';
 import { EmployeesService } from '../../../services/isp/employees.service';
@@ -41,8 +41,8 @@ import { ClientStatusesService } from '../../../services/isp/client-statuses.ser
 import { LocationTypesService } from '../../../services/isp/location-types.service';
 import { CitiesService } from '../../../services/isp/cities.service';
 import { FullInternetTariff } from '../../../models/isp/internet-tariff.models';
-import { InternetTariffStatusDto } from '../../../models/isp/internet-tariff-status.models';
-import { ClientStatusDto } from '../../../models/isp/client-status.models';
+import { FullInternetTariffStatus, InternetTariffStatus, InternetTariffStatusDto } from '../../../models/isp/internet-tariff-status.models';
+import { ClientStatus, ClientStatusDto, FullClientStatus } from '../../../models/isp/client-status.models';
 import { LocationTypeDto } from '../../../models/isp/location-type.models';
 import { CityDto } from '../../../models/isp/city.models';
 import { InternetTariffStatusesService } from '../../../services/isp/internet-tariff-statuses.service';
@@ -50,6 +50,11 @@ import { ConnectionDialogComponent } from '../create-connection-dialog/connectio
 import { PaginationParameters } from '../../../models/isp/pagination.models';
 import { MonitoringService } from '../../../services/monitoring/monitoring.service';
 import { AddUserActivityDto } from '../../../models/monitoring/activity.models';
+import { Guid } from 'js-guid';
+import { FullClient } from '../../../models/isp/client.models';
+import { ClientsService } from '../../../services/isp/clients.service';
+import { CreateIcrDialogComponent } from '../create-icr-dialog/create-icr-dialog.component';
+import { DateFormatterService } from '../../../services/common/date-formatter.service';
 
 @Component({
   selector: 'app-connection-list',
@@ -86,12 +91,14 @@ export class ConnectionListComponent implements OnInit {
   pageIcrs: FullInternetConnectionRequest[] = [];
   totalIcrs = 0;
   isIcrsLoading = false;
+  isAdditionalDataLoading = false;
 
   // Additional data
   icrStatuses: FullInternetConnectionRequestStatus[] = [];
   activeConnectionTariffs: FullConnectionTariff[] = [];
   officeEquipments: FullOfficeEquipment[] = [];
-
+  activeInternetTariffs: FullInternetTariff[] = [];
+  activeClients: FullClient[] = [];
 
   // Filters data
   internetTariffs: FullInternetTariff[] = [];
@@ -120,9 +127,9 @@ export class ConnectionListComponent implements OnInit {
     }
   };
 
-  paginationParameters: PaginationParameters = { 
+  paginationParameters: PaginationParameters = {
     pageNumber: 1,
-    pageSize: 10 
+    pageSize: 10
   };
 
   connectionEmployeeId?: number;
@@ -142,7 +149,9 @@ export class ConnectionListComponent implements OnInit {
     private locationTypesService: LocationTypesService,
     private citiesService: CitiesService,
     private internetTariffStatusesService: InternetTariffStatusesService,
+    private clientsService: ClientsService,
     private monitoringService: MonitoringService,
+    private dateFormatter: DateFormatterService,
     private dialog: MatDialog,
     private router: Router
   ) { }
@@ -159,7 +168,6 @@ export class ConnectionListComponent implements OnInit {
     this.loadIcrs();
     this.loadIcrsCount();
     this.loadAdditionalData();
-    this.loadFiltersData();
   }
 
   // Loading page internet connection requests
@@ -181,13 +189,13 @@ export class ConnectionListComponent implements OnInit {
     catch (error) {
       console.error('Error loading internet connection requests.', error);
     }
-    finally{
+    finally {
       this.isIcrsLoading = false;
     }
   }
 
   // Load internet connection requests count
-  async loadIcrsCount(): Promise<void>{
+  async loadIcrsCount(): Promise<void> {
     try {
       const params = this.prepareRequestParams();
       this.totalIcrs = await firstValueFrom(this.icrsService.getCount(params));
@@ -198,40 +206,74 @@ export class ConnectionListComponent implements OnInit {
   }
 
   // Load additional data
-  async loadAdditionalData(): Promise<void>{
+  async loadAdditionalData() {
+    this.isAdditionalDataLoading = true;
     try {
-      this.icrStatuses = await this.icrStatusesService.get();
+      const employee = await this.getLoginedEmployee();
 
-      this.activeConnectionTariffs = await this.connectionTariffsService.getActive();
+      // Use forkJoin with firstValueFrom 
+      const results = await firstValueFrom(
+        forkJoin({
+          internetTariffs: this.internetTariffsService.getFull(),
+          internetTariffStatuses: this.internetTariffStatusesService.get(),
+          requestStatuses: this.icrStatusesService.get(),
+          clientStatuses: this.clientStatusesService.get(),
+          locationTypes: this.locationTypesService.get(),
+          cities: this.citiesService.get(),
+          icrStatuses: this.icrStatusesService.get(),
+          activeConnectionTariffs: this.connectionTariffsService.getActive(),
+          officeEquipments: this.officeEquipmentsService.getByOfficeFull(employee.officeId)
+        })
+      );
 
-      const employee = await this.getLoginedEmployee()
-      this.officeEquipments = await this.officeEquipmentsService.getByOfficeFull(employee.officeId);
-    }
-    catch (error) {
-      console.error('Error loading additional data.', error);
-    }
-  }
-
-  // Load filters data
-  async loadFiltersData() {
-    this.internetTariffs = await this.internetTariffsService.getFull();
-
-    forkJoin({
-      internetTariffStatuses: this.internetTariffStatusesService.get(),
-      requestStatuses: this.icrStatusesService.get(),
-      clientStatuses: this.clientStatusesService.get(),
-      locationTypes: this.locationTypesService.get(),
-      cities: this.citiesService.get()
-    }).subscribe(results => {
+      this.internetTariffs = results.internetTariffs;
       this.internetTariffStatuses = results.internetTariffStatuses;
       this.requestStatuses = results.requestStatuses;
       this.clientStatuses = results.clientStatuses;
       this.locationTypes = results.locationTypes;
       this.cities = results.cities;
-    });
+      this.icrStatuses = results.icrStatuses;
+      this.activeConnectionTariffs = results.activeConnectionTariffs;
+      this.officeEquipments = results.officeEquipments;
+
+      await this.loadActiveInternetTariffs(results.internetTariffStatuses);
+      await this.loadActiveClients(results.clientStatuses);
+
+    } catch (error) {
+      alert("Помилка при завантаженні додаткових даних.");
+      console.error(error);
+    } finally {
+      this.isAdditionalDataLoading = false;
+    }
   }
 
-  
+  async loadActiveInternetTariffs(internetTariffStatuses: FullInternetTariffStatus[]) {
+    const activeInternetTariffStatus = internetTariffStatuses.find(
+      x => x.internetTariffStatusName === InternetTariffStatus.ACTIVE
+    );
+    if (!activeInternetTariffStatus) {
+      alert("Щось пішло не так.");
+      console.error(`Internet tariff status ${InternetTariffStatus.ACTIVE} can't be found.`);
+      return;
+    }
+
+    this.activeInternetTariffs = await this.internetTariffsService.getByStatusFull(activeInternetTariffStatus.id);
+  }
+
+  async loadActiveClients(clientStatuses: FullClientStatus[]) {
+    const activeClientStatus = clientStatuses.find(
+      x => x.clientStatusName === ClientStatus.ACTIVE
+    );
+    if (!activeClientStatus) {
+      alert("Щось пішло не так.");
+      console.error(`Client status ${ClientStatus.ACTIVE} can't be found.`);
+      return;
+    }
+
+    this.activeClients = await this.clientsService.getByStatusFull(activeClientStatus.id);
+  }
+
+
   // -----------------------------------------
   // 
   // Filtering, sorting and pagination methods
@@ -245,7 +287,7 @@ export class ConnectionListComponent implements OnInit {
     this.loadIcrs();
     this.loadIcrsCount();
   }
-  
+
   prepareRequestParams(): any {
     const params: any = {
       pageNumber: this.paginationParameters.pageNumber,
@@ -253,9 +295,9 @@ export class ConnectionListComponent implements OnInit {
       sortBy: this.currentFilters.sorting.sortBy,
       ascending: this.currentFilters.sorting.ascending
     };
-    
+
     const filters = this.currentFilters.filters;
-    
+
     if (this.connectionEmployeeId) {
       params.connectionEmployeeIds = [this.connectionEmployeeId];
     }
@@ -271,31 +313,31 @@ export class ConnectionListComponent implements OnInit {
     if (filters.internetConnectionRequestStatusIds.length > 0) {
       params.internetConnectionRequestStatusIds = filters.internetConnectionRequestStatusIds;
     }
-    
+
     if (filters.clientStatusIds.length > 0) {
       params.clientStatusIds = filters.clientStatusIds;
     }
-    
+
     if (filters.locationTypeIds.length > 0) {
       params.locationTypeIds = filters.locationTypeIds;
     }
-    
+
     if (filters.cityIds.length > 0) {
       params.cityIds = filters.cityIds;
     }
-    
+
     if (filters.numberContains) {
       params.numberContains = filters.numberContains;
     }
-    
+
     if (filters.requestDateFrom) {
       params.requestDateFrom = `${filters.requestDateFrom.year}-${filters.requestDateFrom.month}-${filters.requestDateFrom.day}`;
     }
-    
+
     if (filters.requestDateTo) {
       params.requestDateTo = `${filters.requestDateTo.year}-${filters.requestDateTo.month}-${filters.requestDateTo.day}`;
     }
-    
+
     return params;
   }
 
@@ -312,7 +354,7 @@ export class ConnectionListComponent implements OnInit {
   }
 
   async toggleFilterByEmployee() {
-    if(this.connectionEmployeeId){
+    if (this.connectionEmployeeId) {
       this.connectionEmployeeId = undefined;
     } else {
       const employee = await this.getLoginedEmployee();
@@ -334,13 +376,13 @@ export class ConnectionListComponent implements OnInit {
   async setIcrStatus(icr: FullInternetConnectionRequest, statusName: string): Promise<void> {
     try {
       const newIcrStatus = this.icrStatuses.find(x => x.internetConnectionRequestStatusName === statusName);
-      
-      if(!newIcrStatus){
-        alert('Error updating internet connection request.');
+
+      if (!newIcrStatus) {
+        alert('Сталася помилка при оновленні статусу запиту на підключення.');
         console.error('Internet connection request not found.');
         return;
       }
-    
+
       icr.internetConnectionRequestStatusId = newIcrStatus.id;
       const icrDto: InternetConnectionRequestDto = icr;
 
@@ -356,30 +398,101 @@ export class ConnectionListComponent implements OnInit {
       await firstValueFrom(this.monitoringService.logActivity(activity));
     }
     catch (error) {
-      alert('Error updating internet connection request.');
-      console.error('Error updating internet connection request.', error);
+      alert('Сталася помилка при оновленні статусу запиту на підключення.');
+      console.error('Error updating internet connection request status.', error);
     }
   }
 
 
-  isIcrStatus(icr: FullInternetConnectionRequest, statusName: string): boolean{
+  isIcrStatus(icr: FullInternetConnectionRequest, statusName: string): boolean {
     return icr.internetConnectionRequestStatus.internetConnectionRequestStatusName === statusName;
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'New':
+        return 'status-chip-new';
+      case 'Approved':
+        return 'status-chip-approved';
+      case 'Rejected':
+        return 'status-chip-rejected';
+      case 'Connected':
+        return 'status-chip-connected';
+      case 'Disconnected':
+        return 'status-chip-disconnected';
+      default:
+        return 'status-chip-default';
+    }
   }
 
 
   // -------------------------
   // 
-  // Connection create methods
+  // Connection / icr create methods
   //
   // -------------------------
 
+  openCreateIcrDialog() {
+    const dialogRef = this.dialog.open(CreateIcrDialogComponent, {
+      maxWidth: '90vw',
+      height: 'auto',
+      maxHeight: '90vh',
+      data: {
+        title: "Створити запит на підключення",
+        locationTypes: this.locationTypes,
+        activeInternetTariffs: this.activeInternetTariffs,
+        activeClients: this.activeClients,
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(dialogResult => {
+      if (dialogResult) {
+        this.createIcr(dialogResult);
+      }
+    });
+  }
+
+  async createIcr(icrData: any) {
+    // Create new icr
+    const icrStatus = this.icrStatuses.find(x => x.internetConnectionRequestStatusName === InternetConnectionRequestStatus.NEW);
+
+    if (!icrStatus) {
+      alert("Щось пішло не так.");
+      console.error(`Internet connection request status ${InternetConnectionRequestStatus.NEW} cant be found.`);
+      return;
+    }
+
+    const icrNumber = Guid.newGuid().toString();
+
+    const newIcr: AddInternetConnectionRequestDto = {
+      clientId: icrData.clientId,
+      internetTariffId: icrData.internetTariffId,
+      internetConnectionRequestStatusId: icrStatus.id,
+      number: icrNumber,
+      requestDate: this.dateFormatter.formatDate(icrData.requestDate),
+    }
+
+    const createdIcr = await firstValueFrom(this.icrsService.create(newIcr));
+
+    // Reload icrs list
+    this.loadIcrs();
+    this.loadIcrsCount();
+
+    // Log activity
+    const activity: AddUserActivityDto = {
+      actionOn: 'Запити на підключення',
+      action: 'Створення',
+      details: this.formatCreateIcrActivityDetails(await this.icrsService.getByIdFull(createdIcr.id))
+    };
+
+    await firstValueFrom(this.monitoringService.logActivity(activity));
+  }
 
   openCreateConnectionDialog(icr: any): void {
     const dialogRef = this.dialog.open(ConnectionDialogComponent, {
       maxWidth: '90vw',
       height: 'auto',
       maxHeight: '90vh',
-      panelClass: 'connection-dialog-panel',
       data: {
         title: "Створити підключення",
         icr: icr,
@@ -387,7 +500,7 @@ export class ConnectionListComponent implements OnInit {
         officeEquipments: this.officeEquipments
       }
     });
-  
+
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.createConnection(icr, result);
@@ -398,7 +511,7 @@ export class ConnectionListComponent implements OnInit {
   async createConnection(icr: FullInternetConnectionRequest, connectionData: any): Promise<void> {
     // Checks
     const savedLogin = this.authEmployeeService.getLogin();
-    if(!savedLogin){
+    if (!savedLogin) {
       this.router.navigateByUrl('/network-technician/login');
       return;
     }
@@ -414,7 +527,7 @@ export class ConnectionListComponent implements OnInit {
     const newConnection: AddConnectionDto = {
       internetConnectionRequestId: icr.id,
       connectionTariffId: connectionData.connectionTariffId,
-      connectionDate: this.formatDate(connectionData.connectionDate),
+      connectionDate: this.dateFormatter.formatDate(connectionData.connectionDate),
       employeeId: +savedLogin.employeeId,
       totalPrice: connectionData.totalPrice
     }
@@ -423,7 +536,7 @@ export class ConnectionListComponent implements OnInit {
     console.log('Created conntection:', createdConnection)
 
     // Create connection equipments
-    for(const connectionEquipmentData of connectionData.connectionEquipments){
+    for (const connectionEquipmentData of connectionData.connectionEquipments) {
       const newConnectionEquipment: AddConnectionEquipmentDto = {
         connectionId: createdConnection.id,
         officeEquipmentId: connectionEquipmentData.officeEquipmentId,
@@ -439,17 +552,17 @@ export class ConnectionListComponent implements OnInit {
 
     // Log activity
     const activity: AddUserActivityDto = {
-      actionOn: 'Запити на підключення',
-      action: 'Створення підключення',
+      actionOn: 'Підключення',
+      action: 'Створення',
       details: this.formatCreateConnectionActivityDetails(icr)
     };
     await firstValueFrom(this.monitoringService.logActivity(activity));
   }
 
   async ensureOfficeEquipmentEnough_Create(connectionEquipments: any): Promise<void> {
-    for(const connectionEquipment of connectionEquipments){
+    for (const connectionEquipment of connectionEquipments) {
       const officeEquipment = await this.officeEquipmentsService.getByIdFull(connectionEquipment.officeEquipmentId);
-      if(connectionEquipment.connectionEquipmentAmount > officeEquipment.officeEquipmentAmount){
+      if (connectionEquipment.connectionEquipmentAmount > officeEquipment.officeEquipmentAmount) {
         throw new Error(
           "Обладнання '" + officeEquipment.equipment.name + "' недостатньо на складі. Зверніться до менеджера вашого офісу для замовлення необхідного обладнання. Наразі в наявності " + officeEquipment.officeEquipmentAmount + ' од.');
       }
@@ -469,7 +582,6 @@ export class ConnectionListComponent implements OnInit {
       maxWidth: '90vw',
       height: 'auto',
       maxHeight: '90vh',
-      panelClass: 'connection-dialog-panel',
       data: {
         title: "Редагувати підключення",
         icr: icr,
@@ -477,7 +589,7 @@ export class ConnectionListComponent implements OnInit {
         officeEquipments: this.officeEquipments
       }
     });
-  
+
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.editConnection(icr, result);
@@ -485,23 +597,23 @@ export class ConnectionListComponent implements OnInit {
     });
   }
 
-  async editConnection( icr: FullInternetConnectionRequest, connectionData: any ): Promise<void> {
+  async editConnection(icr: FullInternetConnectionRequest, connectionData: any): Promise<void> {
     // Checks
     const savedLogin = this.authEmployeeService.getLogin();
-    if( !savedLogin ){
-      this.router.navigateByUrl( '/network-technician/login' );
+    if (!savedLogin) {
+      this.router.navigateByUrl('/network-technician/login');
       return;
     }
 
-    if( !icr.connection ){
+    if (!icr.connection) {
       alert('Щось пішло не так.');
       return;
     }
 
     try {
-      await this.ensureOfficeEquipmentEnough_Update( icr.connection.connectionEquipments, connectionData.connectionEquipments );
-    } catch ( error ) {
-      alert( error );
+      await this.ensureOfficeEquipmentEnough_Update(icr.connection.connectionEquipments, connectionData.connectionEquipments);
+    } catch (error) {
+      alert(error);
       return;
     }
 
@@ -510,23 +622,23 @@ export class ConnectionListComponent implements OnInit {
       id: icr.connection.id,
       internetConnectionRequestId: icr.id,
       connectionTariffId: connectionData.connectionTariffId,
-      connectionDate: this.formatDate(connectionData.connectionDate),
+      connectionDate: this.dateFormatter.formatDate(connectionData.connectionDate),
       employeeId: +savedLogin.employeeId,
       totalPrice: connectionData.totalPrice
     }
 
-    await this.updateConnection( updateConnectionDto );
+    await this.updateConnection(updateConnectionDto);
 
     // Updating connection equipments
-    await this.updateConnectionEquipment( icr.connection.id,  icr.connection.connectionEquipments, connectionData.connectionEquipments );
+    await this.updateConnectionEquipment(icr.connection.id, icr.connection.connectionEquipments, connectionData.connectionEquipments);
 
     // Load created connection
-    icr.connection = await this.connectionsService.getByIcrIdFull( icr.id );
+    icr.connection = await this.connectionsService.getByIcrIdFull(icr.id);
 
     // Log activity
     const activity: AddUserActivityDto = {
-      actionOn: 'Запити на підключення',
-      action: 'Оновлення підключення',
+      actionOn: 'Підключення',
+      action: 'Оновлення',
       details: this.formatUpdateConnectionActivityDetails(icr)
     };
     await firstValueFrom(this.monitoringService.logActivity(activity));
@@ -542,8 +654,8 @@ export class ConnectionListComponent implements OnInit {
     currentConnectionEquipments: FullConnectionEquipment[],
     formConnectionEquipments: any
   ): Promise<void> {
-    const currentOfficeEquipmentIdsSet = new Set( currentConnectionEquipments.map( x => x.officeEquipmentId) );
-    const formOfficeEquipmentIdsSet = new Set( formConnectionEquipments.map((x: { officeEquipmentId: number; }) => x.officeEquipmentId) );
+    const currentOfficeEquipmentIdsSet = new Set(currentConnectionEquipments.map(x => x.officeEquipmentId));
+    const formOfficeEquipmentIdsSet = new Set(formConnectionEquipments.map((x: { officeEquipmentId: number; }) => x.officeEquipmentId));
 
     const connectionEquipmentToAdd = formConnectionEquipments.filter(
       (x: { officeEquipmentId: number; }) => !currentOfficeEquipmentIdsSet.has(x.officeEquipmentId)
@@ -557,27 +669,27 @@ export class ConnectionListComponent implements OnInit {
       x => !formOfficeEquipmentIdsSet.has(x.officeEquipmentId)
     );
 
-    for( const connectionEquipment of connectionEquipmentToAdd ){
+    for (const connectionEquipment of connectionEquipmentToAdd) {
       const createDto: AddConnectionEquipmentDto = {
         connectionId: connectionId,
         officeEquipmentId: connectionEquipment.officeEquipmentId,
         connectionEquipmentAmount: connectionEquipment.connectionEquipmentAmount
       }
 
-      await firstValueFrom( this.connectionEquipmentsService.create(createDto) );
+      await firstValueFrom(this.connectionEquipmentsService.create(createDto));
     }
 
-    for( const connectionEquipment of connectionEquipmentToUpdate ){
+    for (const connectionEquipment of connectionEquipmentToUpdate) {
       const currentConnectionEquipment = currentConnectionEquipments.find(
         x => x.officeEquipmentId === connectionEquipment.officeEquipmentId
       );
-      
-      if( !currentConnectionEquipment ){
+
+      if (!currentConnectionEquipment) {
         alert('Щось пішло не так.');
         return;
       }
 
-      if( currentConnectionEquipment.connectionEquipmentAmount === connectionEquipment.connectionEquipmentAmount ){
+      if (currentConnectionEquipment.connectionEquipmentAmount === connectionEquipment.connectionEquipmentAmount) {
         continue;
       }
 
@@ -588,11 +700,11 @@ export class ConnectionListComponent implements OnInit {
         connectionEquipmentAmount: connectionEquipment.connectionEquipmentAmount
       }
 
-      await firstValueFrom( this.connectionEquipmentsService.update(updateDto) );
+      await firstValueFrom(this.connectionEquipmentsService.update(updateDto));
     }
 
-    for( const connectionEquipment of connectionEquipmentToRemove ){
-      await firstValueFrom( this.connectionEquipmentsService.delete(connectionEquipment.id) );
+    for (const connectionEquipment of connectionEquipmentToRemove) {
+      await firstValueFrom(this.connectionEquipmentsService.delete(connectionEquipment.id));
     }
   }
 
@@ -600,9 +712,9 @@ export class ConnectionListComponent implements OnInit {
     currentConnectionEquipments: FullConnectionEquipment[],
     formConnectionEquipments: any,
 
-  ) : Promise<void> {
+  ): Promise<void> {
 
-    const currentOfficeEquipmentIdsSet = new Set( currentConnectionEquipments.map( x => x.officeEquipmentId) );
+    const currentOfficeEquipmentIdsSet = new Set(currentConnectionEquipments.map(x => x.officeEquipmentId));
 
     const connectionEquipmentToAdd = formConnectionEquipments.filter(
       (x: { officeEquipmentId: number; }) => !currentOfficeEquipmentIdsSet.has(x.officeEquipmentId)
@@ -614,21 +726,21 @@ export class ConnectionListComponent implements OnInit {
 
     await this.ensureOfficeEquipmentEnough_Create(connectionEquipmentToAdd);
 
-    for(const connectionEquipment of connectionEquipmentToUpdate){
+    for (const connectionEquipment of connectionEquipmentToUpdate) {
       const currentConnectionEquipment = currentConnectionEquipments.find(
         x => x.officeEquipmentId === connectionEquipment.officeEquipmentId
       );
-      
-      if( !currentConnectionEquipment ){
+
+      if (!currentConnectionEquipment) {
         alert('Щось пішло не так.');
         return;
       }
 
       const addAmount = connectionEquipment.connectionEquipmentAmount - currentConnectionEquipment.connectionEquipmentAmount;
-      
+
       const officeEquipment = await this.officeEquipmentsService.getByIdFull(connectionEquipment.officeEquipmentId);
-      
-      if(addAmount > officeEquipment.officeEquipmentAmount){
+
+      if (addAmount > officeEquipment.officeEquipmentAmount) {
         throw new Error(
           `Обладнання ${officeEquipment.equipment.name} недостатньо на складі. Зверніться до менеджера вашого офісу для замовлення необхідного обладнання. Наразі в наявності ${officeEquipment.officeEquipmentAmount} од.`);
       }
@@ -647,31 +759,18 @@ export class ConnectionListComponent implements OnInit {
     if (!equipments || !Array.isArray(equipments)) {
       return 0;
     }
-    
+
     return equipments.reduce((total, item) => {
       return total + (item.connectionEquipmentAmount * item.officeEquipment.equipment.price);
     }, 0);
   }
 
 
-  formatDate(date: Date | string): string {
-    if (typeof date === 'string') {
-      return date.split('T')[0];
-    }
-    
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-
-  async getLoginedEmployee(): Promise<EmployeeDto>{
+  async getLoginedEmployee(): Promise<EmployeeDto> {
 
     const savedLogin = this.authEmployeeService.getLogin();
 
-    if(!savedLogin){
+    if (!savedLogin) {
       this.router.navigateByUrl('/network-technician/login');
       throw new Error('Login data is outdated or corrupted.');
     }
@@ -750,7 +849,7 @@ export class ConnectionListComponent implements OnInit {
 
       details += `Типи локацій: ${locationTypeNames.join(', ')}.\n`;
     }
-    
+
     // Cities details
     if (params.cityIds && params.cityIds.length > 0) {
       const cityNames = params.cityIds.map((id: number) => {
@@ -765,13 +864,13 @@ export class ConnectionListComponent implements OnInit {
     if (params.numberContains) {
       details += `Номер запиту: ${params.numberContains}.\n`;
     }
-    
+
     // Request date from details
     if (params.requestDateFrom) {
       details += `Дата запиту від: ${params.requestDateFrom}.\n`;
     }
 
-     // Request date to details
+    // Request date to details
     if (params.requestDateTo) {
       details += `Дата запиту до: ${params.requestDateTo}.\n`;
     }
@@ -799,23 +898,34 @@ export class ConnectionListComponent implements OnInit {
         return '';
     }
   }
-  
+
   formatUpdateStatusActivityDetails(icr: FullInternetConnectionRequest): string {
     return `Номер запиту: ${icr.number}.\nНовий статус: ${icr.internetConnectionRequestStatus.internetConnectionRequestStatusName}.`;
   }
 
+  formatCreateIcrActivityDetails(icr: FullInternetConnectionRequest): string {
+    let details = `Створений запит на підключення:\n`;
+
+    details += `Статус запиту: ${icr.internetConnectionRequestStatus.internetConnectionRequestStatusName}\n`;
+    details += `Номер запиту: ${icr.number}\n`;
+    details += `Дата подання запиту: ${icr.requestDate}\n`;
+    details += `Клієнт: ${icr.client.email}\n`;
+    details += `Інтернет тариф: ${icr.internetTariff.name}\n`;
+    return details;
+  }
+
   formatCreateConnectionActivityDetails(icr: FullInternetConnectionRequest): string {
     let details = `Номер запиту: ${icr.number}.\n`
-    
-    if(!icr.connection) {
+
+    if (!icr.connection) {
       return details;
     }
 
     details += `Створене підключення:\n`;
     details += `Дата підключення: ${icr.connection.connectionDate}\n`;
     details += `Тариф на підключення: ${icr.connection.connectionTariff.name} - $${icr.connection.connectionTariff.price}\n`;
-    
-    if(icr.connection.connectionEquipments.length > 0){
+
+    if (icr.connection.connectionEquipments.length > 0) {
       const connectionEquipmentNames = icr.connection?.connectionEquipments.map(x =>
         `Назва: ${x.officeEquipment.equipment.name}. Кількість: ${x.connectionEquipmentAmount}. Вартість за одиницю: $${x.officeEquipment.equipment.price}.`
       );
@@ -832,16 +942,16 @@ export class ConnectionListComponent implements OnInit {
 
   formatUpdateConnectionActivityDetails(icr: FullInternetConnectionRequest): string {
     let details = `Номер запиту: ${icr.number}.\n`
-    
-    if(!icr.connection) {
+
+    if (!icr.connection) {
       return details;
     }
 
     details += `Оновлене підключення:\n`;
     details += `Дата підключення: ${icr.connection.connectionDate}\n`;
     details += `Тариф на підключення: ${icr.connection.connectionTariff.name} - $${icr.connection.connectionTariff.price}\n`;
-    
-    if(icr.connection.connectionEquipments.length > 0){
+
+    if (icr.connection.connectionEquipments.length > 0) {
       const connectionEquipmentNames = icr.connection?.connectionEquipments.map(x =>
         `Назва: ${x.officeEquipment.equipment.name}. Кількість: ${x.connectionEquipmentAmount}. Вартість за одиницю: $${x.officeEquipment.equipment.price}.`
       );
@@ -929,7 +1039,7 @@ export class ConnectionListComponent implements OnInit {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `connections-${this.formatDate(new Date())}.json`;
+    a.download = `connections-${this.dateFormatter.formatDate(new Date())}.json`;
 
     document.body.appendChild(a);
     a.click();

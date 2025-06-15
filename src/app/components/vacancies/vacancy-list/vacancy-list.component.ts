@@ -26,8 +26,6 @@ import { FullEmployeeStatus } from '../../../models/isp/employee-status.models';
 import { EmployeeStatusesService } from '../../../services/isp/employee-statuses.service';
 import { AddUserActivityDto } from '../../../models/monitoring/activity.models';
 import { MonitoringService } from '../../../services/monitoring/monitoring.service';
-import { HumanResourceHeaderComponent } from '../../human-resource/human-resource-header/human-resource-header.component';
-import {PurchaseFilterPanelComponent} from "../../purchases/purchase-filter-panel/purchase-filter-panel.component";
 import {InterviewRequestsService} from "../../../services/isp/interview-requests.service";
 import {DateFormatterService} from "../../../services/common/date-formatter.service";
 

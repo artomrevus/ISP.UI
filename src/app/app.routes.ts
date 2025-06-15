@@ -9,8 +9,8 @@ import { VacancyListComponent } from './components/vacancies/vacancy-list/vacanc
 import { authHumanResourceGuard } from './guards/auth-human-resource.guard';
 import { HumanResourceMonitoringComponent } from './components/human-resource/human-resource-monitoring/human-resource-monitoring.component';
 import { LoginOfficeManagerComponent } from './components/office-manager/login-office-manager/login-office-manager.component';
-import {PurchaseListComponent} from "./components/purchases/purchase-list/purchase-list.component";
-import {authOfficeManagerGuard} from "./guards/auth-office-manager.guard";
+import { PurchaseListComponent } from "./components/purchases/purchase-list/purchase-list.component";
+import { authOfficeManagerGuard } from "./guards/auth-office-manager.guard";
 import {
     NetworkTechnicianConnectionsComponent
 } from "./components/network-technician/network-technician-connections/network-technician-connections.component";
@@ -26,16 +26,31 @@ import {
 import {
     WarehouseWorkerPlacementsComponent
 } from "./components/warehouse-worker/warehouse-worker-placements/warehouse-worker-placements.component";
-import {authWarehouseWorkerGuard} from "./guards/auth-warehouse-worker.guard";
+import { authWarehouseWorkerGuard } from "./guards/auth-warehouse-worker.guard";
 import {
     OfficeManagerMonitoringComponent
 } from "./components/office-manager/office-manager-monitoring/office-manager-monitoring.component";
 import {
     WarehouseWorkerMonitoringComponent
 } from "./components/warehouse-worker/warehouse-worker-monitoring/warehouse-worker-monitoring.component";
-import {LoginAdminComponent} from "./components/admin/login-admin/login-admin.component";
-import {AdminMonitoringComponent} from "./components/admin/admin-monitoring/admin-monitoring.component";
-import {authAdminGuard} from "./guards/auth-admin.guard";
+import { LoginAdminComponent } from "./components/admin/login-admin/login-admin.component";
+import { AdminMonitoringComponent } from "./components/admin/admin-monitoring/admin-monitoring.component";
+import { authAdminGuard } from "./guards/auth-admin.guard";
+import {
+    OfficeManagerSuppliersComponent
+} from "./components/office-manager/office-manager-suppliers/office-manager-suppliers.component";
+import {
+    OfficeManagerConnectionTariffsComponent
+} from "./components/office-manager/office-manager-connection-tariffs/office-manager-connection-tariffs.component";
+import { OfficeManagerInternetTariffsComponent } from './components/office-manager/office-manager-internet-tariffs/office-manager-internet-tariffs.component';
+import { OfficeManagerEquipmentsComponent } from './components/office-manager/office-manager-equipments/office-manager-equipments.component';
+import { OfficeManagerOfficesComponent } from './components/office-manager/office-manager-offices/office-manager-offices.component';
+import { HumanResourceCandidatesComponent } from './components/human-resource/human-resource-candidates/human-resource-candidates.component';
+import { OfficeManagerCitiesComponent } from './components/office-manager/office-manager-cities/office-manager-cities.component';
+import { OfficeManagerStreetsComponent } from './components/office-manager/office-manager-streets/office-manager-streets.component';
+import { OfficeManagerHousesComponent } from './components/office-manager/office-manager-houses/office-manager-houses.component';
+import { OfficeManagerLocationsComponent } from './components/office-manager/office-manager-locations/office-manager-locations.component';
+import { OfficeManagerClientsComponent } from './components/office-manager/office-manager-clients/office-manager-clients.component';
 
 export const routes: Routes = [
     {
@@ -43,7 +58,7 @@ export const routes: Routes = [
         redirectTo: 'login',
         pathMatch: 'full'
     },
-    { 
+    {
         path: 'login',
         component: LoginComponent
     },
@@ -56,7 +71,7 @@ export const routes: Routes = [
         component: NetworkTechnicianConnectionsComponent,
         canActivate: [authNetworkTechnicianGuard]
     },
-    { 
+    {
         path: 'network-technician/monitoring',
         component: NetworkTechnicianMonitoringComponent,
         canActivate: [authNetworkTechnicianGuard]
@@ -70,7 +85,12 @@ export const routes: Routes = [
         component: HumanResourceVacanciesComponent,
         canActivate: [authHumanResourceGuard]
     },
-    { 
+    {
+        path: 'human-resource/candidates',
+        component: HumanResourceCandidatesComponent,
+        canActivate: [authHumanResourceGuard]
+    },
+    {
         path: 'human-resource/monitoring',
         component: HumanResourceMonitoringComponent,
         canActivate: [authHumanResourceGuard]
@@ -82,6 +102,56 @@ export const routes: Routes = [
     {
         path: 'office-manager/purchases',
         component: OfficeManagerPurchasesComponent,
+        canActivate: [authOfficeManagerGuard]
+    },
+    {
+        path: 'office-manager/suppliers',
+        component: OfficeManagerSuppliersComponent,
+        canActivate: [authOfficeManagerGuard]
+    },
+    {
+        path: 'office-manager/connection-tariffs',
+        component: OfficeManagerConnectionTariffsComponent,
+        canActivate: [authOfficeManagerGuard]
+    },
+    {
+        path: 'office-manager/internet-tariffs',
+        component: OfficeManagerInternetTariffsComponent,
+        canActivate: [authOfficeManagerGuard]
+    },
+    {
+        path: 'office-manager/equipments',
+        component: OfficeManagerEquipmentsComponent,
+        canActivate: [authOfficeManagerGuard]
+    },
+    {
+        path: 'office-manager/offices',
+        component: OfficeManagerOfficesComponent,
+        canActivate: [authOfficeManagerGuard]
+    },
+    {
+        path: 'office-manager/cities',
+        component: OfficeManagerCitiesComponent,
+        canActivate: [authOfficeManagerGuard]
+    },
+    {
+        path: 'office-manager/streets',
+        component: OfficeManagerStreetsComponent,
+        canActivate: [authOfficeManagerGuard]
+    },
+    {
+        path: 'office-manager/houses',
+        component: OfficeManagerHousesComponent,
+        canActivate: [authOfficeManagerGuard]
+    },
+    {
+        path: 'office-manager/locations',
+        component: OfficeManagerLocationsComponent,
+        canActivate: [authOfficeManagerGuard]
+    },
+    {
+        path: 'office-manager/clients',
+        component: OfficeManagerClientsComponent,
         canActivate: [authOfficeManagerGuard]
     },
     {

@@ -138,7 +138,7 @@ export class EquipmentPlacementListComponent implements OnInit {
       // Log activity
       const activity: AddUserActivityDto = {
         actionOn: 'Розміщення',
-        action: 'Оновлення розміщення',
+        action: 'Оновлення',
         details: await this.formatUpdateActivityDetails(placementToUpdate)
       };
 

@@ -8,7 +8,10 @@
     </div>
 
     <div class="header-right">
-        <span class="user-name">{{ employeeFullName }}</span>
+         <div class="user-info">
+          <span class="user-name">{{ employeeFullNameText }}</span>
+          <span class="user-role">{{ employeeRoleText }}</span>
+        </div>
         <button mat-icon-button aria-label="User menu" (click)="logout()">
             <mat-icon>logout</mat-icon>
         </button>

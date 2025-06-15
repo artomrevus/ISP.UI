@@ -25,7 +25,8 @@ import {RouterModule} from '@angular/router';
     styleUrl: './warehouse-worker-header.component.css'
 })
 export class WarehouseWorkerHeaderComponent implements OnInit {
-    employeeFullName: string = '';
+    employeeFullNameText: string = '';
+    employeeRoleText: string = 'Працівник складу';
 
     constructor(
         private router: Router,
@@ -35,7 +36,7 @@ export class WarehouseWorkerHeaderComponent implements OnInit {
 
     async ngOnInit(): Promise<void> {
         const employee = await this.getLoginedEmployee();
-        this.employeeFullName = employee.firstName + ' ' + employee.lastName;
+        this.employeeFullNameText = employee.firstName + ' ' + employee.lastName;
     }
 
     async getLoginedEmployee(): Promise<FullEmployee>{

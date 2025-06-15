@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -19,6 +19,7 @@ import { FullEmployeeStatus } from '../../../models/isp/employee-status.models';
 import { VacancyFormComponent } from '../vacancy-form/vacancy-form.component';
 import { AddUserActivityDto } from '../../../models/monitoring/activity.models';
 import { MonitoringService } from '../../../services/monitoring/monitoring.service';
+import { InterviewRequestFormComponent } from '../interview-request-form/interview-request-form.component';
 
 @Component({
   selector: 'app-vacancy-card',
@@ -36,6 +37,9 @@ import { MonitoringService } from '../../../services/monitoring/monitoring.servi
   styleUrl: './vacancy-card.component.css'
 })
 export class VacancyCardComponent {
+
+  @ViewChild(InterviewRequestListComponent)
+  interviewRequestListComponent!: InterviewRequestListComponent;
 
   @Input() vacancy!: FullVacancy;
   @Input() vacancyStatuses!: FullVacancyStatus[];
@@ -79,7 +83,7 @@ export class VacancyCardComponent {
         action: 'Оновлення статусу',
         details: this.formatSetVacancyStatusActivityDetails(this.vacancy)
       };
-      
+
       await firstValueFrom(this.monitoringService.logActivity(activity));
     } catch (error) {
       console.error(error);
@@ -106,6 +110,42 @@ export class VacancyCardComponent {
     }
   }
 
+  openInterviewRequestForm(): void {
+    const dialogRef = this.dialog.open(InterviewRequestFormComponent, {
+      maxWidth: '90vw',
+      height: 'auto',
+      maxHeight: '90vh',
+      data: {
+        vacancy: this.vacancy,
+        interviewRequestStatuses: this.interviewRequestStatuses
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.reloadInterviewRequests();
+      }
+    });
+  }
+
+  reloadInterviewRequests() {
+    if (this.interviewRequestListComponent) {
+      this.interviewRequestListComponent.ngOnInit();
+    }
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'Active':
+        return 'status-header-active';
+      case 'Closed':
+        return 'status-header-closed';
+      case 'Canceled':
+        return 'status-header-canceled';
+      default:
+        return 'status-header-default';
+    }
+  }
 
   // ---------------------------------
   // 

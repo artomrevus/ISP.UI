@@ -25,7 +25,8 @@ import {RouterModule} from '@angular/router';
   styleUrl: './human-resource-header.component.css'
 })
 export class HumanResourceHeaderComponent implements OnInit {
-  employeeFullName: string = '';
+  employeeFullNameText: string = '';
+  employeeRoleText: string = 'HR працівник';
   
   constructor(
     private router: Router,
@@ -35,7 +36,7 @@ export class HumanResourceHeaderComponent implements OnInit {
   
   async ngOnInit(): Promise<void> {
     const employee = await this.getLoginedEmployee();
-    this.employeeFullName = employee.firstName + ' ' + employee.lastName;
+    this.employeeFullNameText = employee.firstName + ' ' + employee.lastName;
   }
 
   async getLoginedEmployee(): Promise<FullEmployee>{

@@ -24,3 +24,12 @@ export interface InterviewRequestDto {
     applicationDate: string;
     considerationDate?: string;
 }
+
+export interface AddInterviewRequestDto {
+    vacancyId: number;
+    candidateId: number;
+    interviewRequestStatusId: number;
+    number: string;
+    applicationDate: string;
+    considerationDate?: string;
+}

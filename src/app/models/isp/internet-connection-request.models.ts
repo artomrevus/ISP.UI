@@ -24,3 +24,11 @@ export interface InternetConnectionRequestDto {
   number: string;
   requestDate: string;
 }
+
+export interface AddInternetConnectionRequestDto {
+  clientId: number;
+  internetTariffId: number;
+  internetConnectionRequestStatusId: number;
+  number: string;
+  requestDate: string;
+}

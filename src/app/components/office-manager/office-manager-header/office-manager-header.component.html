@@ -2,13 +2,101 @@
     <div class="header-left">
         <a mat-button routerLink="/login" routerLinkActive="active-link" class="logo">ISP</a>
         <nav class="nav-links">
-            <a mat-button routerLink="/office-manager/purchases" routerLinkActive="active-link">Закупки</a>
-            <a mat-button routerLink="/office-manager/monitoring" routerLinkActive="active-link">Моніторинг</a>
+            <!-- Фінанси та Закупки -->
+            <button mat-button [matMenuTriggerFor]="financeMenu" class="dropdown-button">
+                Закупки
+                <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+            </button>
+            <mat-menu #financeMenu="matMenu" class="custom-menu">
+                <a mat-menu-item routerLink="/office-manager/purchases" routerLinkActive="active-link">
+                    <mat-icon>shopping_cart</mat-icon>
+                    <span>Закупки</span>
+                </a>
+                <a mat-menu-item routerLink="/office-manager/suppliers" routerLinkActive="active-link">
+                    <mat-icon>business</mat-icon>
+                    <span>Постачальники</span>
+                </a>
+                <a mat-menu-item routerLink="/office-manager/equipments" routerLinkActive="active-link">
+                    <mat-icon>router</mat-icon>
+                    <span>Обладнання</span>
+                </a>
+            </mat-menu>
+
+            <!-- Тарифи та Послуги -->
+            <button mat-button [matMenuTriggerFor]="tariffsMenu" class="dropdown-button">
+                Тарифи
+                <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+            </button>
+            <mat-menu #tariffsMenu="matMenu" class="custom-menu">
+                <a mat-menu-item routerLink="/office-manager/connection-tariffs" routerLinkActive="active-link">
+                    <mat-icon>cable</mat-icon>
+                    <span>Тарифи на підключення</span>
+                </a>
+                <a mat-menu-item routerLink="/office-manager/internet-tariffs" routerLinkActive="active-link">
+                    <mat-icon>wifi</mat-icon>
+                    <span>Інтернет тарифи</span>
+                </a>
+            </mat-menu>
+
+            <!-- Обладнання та Офіси -->
+            <button mat-button [matMenuTriggerFor]="equipmentMenu" class="dropdown-button">
+                Клієнти та Офіси
+                <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+            </button>
+            <mat-menu #equipmentMenu="matMenu" class="custom-menu">
+                <a mat-menu-item routerLink="/office-manager/clients" routerLinkActive="active-link">
+                    <mat-icon>people</mat-icon>
+                    <span>Клієнти</span>
+                </a>
+                <a mat-menu-item routerLink="/office-manager/offices" routerLinkActive="active-link">
+                    <mat-icon>domain</mat-icon>
+                    <span>Офіси</span>
+                </a>
+            </mat-menu>
+
+            <!-- Локації та Адреси -->
+            <button mat-button [matMenuTriggerFor]="locationsMenu" class="dropdown-button">
+                Локації
+                <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+            </button>
+            <mat-menu #locationsMenu="matMenu" class="custom-menu">
+                <a mat-menu-item routerLink="/office-manager/cities" routerLinkActive="active-link">
+                    <mat-icon>location_city</mat-icon>
+                    <span>Міста</span>
+                </a>
+                <a mat-menu-item routerLink="/office-manager/streets" routerLinkActive="active-link">
+                    <mat-icon>add_road</mat-icon>
+                    <span>Вулиці</span>
+                </a>
+                <a mat-menu-item routerLink="/office-manager/houses" routerLinkActive="active-link">
+                    <mat-icon>home</mat-icon>
+                    <span>Будинки</span>
+                </a>
+                <a mat-menu-item routerLink="/office-manager/locations" routerLinkActive="active-link">
+                    <mat-icon>place</mat-icon>
+                    <span>Локації</span>
+                </a>
+            </mat-menu>
+
+            <!-- Клієнти та Моніторинг -->
+            <button mat-button [matMenuTriggerFor]="clientsMenu" class="dropdown-button">
+                Моніторинг
+                <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+            </button>
+            <mat-menu #clientsMenu="matMenu" class="custom-menu">
+                <a mat-menu-item routerLink="/office-manager/monitoring" routerLinkActive="active-link">
+                    <mat-icon>monitor</mat-icon>
+                    <span>Моніторинг</span>
+                </a>
+            </mat-menu>
         </nav>
     </div>
 
     <div class="header-right">
-        <span class="user-name">{{ employeeFullName }}</span>
+        <div class="user-info">
+            <span class="user-name">{{ employeeFullNameText }}</span>
+            <span class="user-role">{{ employeeRoleText }}</span>
+        </div>
         <button mat-icon-button aria-label="User menu" (click)="logout()">
             <mat-icon>logout</mat-icon>
         </button>

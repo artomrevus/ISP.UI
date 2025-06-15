@@ -3,6 +3,7 @@
     justify-content: space-between;
     padding: 0 16px;
     height: 64px;
+    border-bottom: 2px solid #ddd;
 }
 
 .header-left, .header-right {
@@ -32,12 +33,32 @@
     background-color: rgba(255, 255, 255, 0.15);
 }
 
+.user-info {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 32px;
+    min-width: max-content;
+}
+
+.user-name, .user-role {
+    display: block;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+}
+
 .user-name {
-    margin-right: 16px;
     font-weight: 500;
 }
 
-@media (max-width: 600px) {
+.user-role {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.2;
+}
+
+@media (max-width: 1000px) {
     .user-name {
         display: none;
     }

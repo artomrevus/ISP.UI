@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
     providedIn: 'root'
 })
 export class DateFormatterService {
-    constructor() {}
+    constructor() { }
 
     formatDate(date: Date | string): string {
         if (typeof date === 'string') {

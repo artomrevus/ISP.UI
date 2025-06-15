@@ -3,12 +3,16 @@
         <a mat-button routerLink="/login" routerLinkActive="active-link" class="logo">ISP</a>
         <nav class="nav-links">
             <a mat-button routerLink="/human-resource/vacancies" routerLinkActive="active-link">Вакансії</a>
+            <a mat-button routerLink="/human-resource/candidates" routerLinkActive="active-link">Кандидати</a>
             <a mat-button routerLink="/human-resource/monitoring" routerLinkActive="active-link">Моніторинг</a>
         </nav>
     </div>
 
     <div class="header-right">
-        <span class="user-name">{{ employeeFullName }}</span>
+        <div class="user-info">
+          <span class="user-name">{{ employeeFullNameText }}</span>
+          <span class="user-role">{{ employeeRoleText }}</span>
+        </div>
         <button mat-icon-button aria-label="User menu" (click)="logout()">
             <mat-icon>logout</mat-icon>
         </button>

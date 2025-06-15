@@ -14,6 +14,7 @@ import { Guid } from 'js-guid';
 import { AddUserActivityDto } from '../../../models/monitoring/activity.models';
 import { firstValueFrom } from 'rxjs';
 import { MonitoringService } from '../../../services/monitoring/monitoring.service';
+import { DateFormatterService } from '../../../services/common/date-formatter.service';
 
 @Component({
   selector: 'app-vacancy-form',
@@ -44,6 +45,7 @@ export class VacancyFormComponent {
     private fb: FormBuilder,
     private vacanciesService: VacanciesService,
     private monitoringService: MonitoringService,
+    private dateFormatter: DateFormatterService,
     private dialogRef: MatDialogRef<VacancyFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: {
       vacancyStatuses: FullVacancyStatus[],
@@ -97,7 +99,7 @@ export class VacancyFormComponent {
       // Log activity
       const activity: AddUserActivityDto = {
         actionOn: 'Вакансії',
-        action: 'Оновлення вакансії',
+        action: 'Оновлення',
         details: this.formatUpdateVacancyActivityDetails(updatedVacancy)
       };
 
@@ -121,7 +123,7 @@ export class VacancyFormComponent {
         monthRate: monthRate,
         description: description,
         number: number,
-        appearanceDate: this.formatDate(appearanceDate)
+        appearanceDate: this.dateFormatter.formatDate(appearanceDate)
       };
 
       // Create vacancy
@@ -130,7 +132,7 @@ export class VacancyFormComponent {
       // Log activity
       const activity: AddUserActivityDto = {
         actionOn: 'Вакансії',
-        action: 'Створення вакансії',
+        action: 'Створення',
         details: this.formatCreateVacancyActivityDetails(createdVacancy)
       };
 
@@ -139,18 +141,6 @@ export class VacancyFormComponent {
       // Close dialog
       this.dialogRef.close(createdVacancy);
     }
-  }
-
-  formatDate(date: Date | string): string {
-    if (typeof date === 'string') {
-      return date.split('T')[0];
-    }
-
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
   }
 
 

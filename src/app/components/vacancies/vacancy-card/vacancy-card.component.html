@@ -1,5 +1,5 @@
 <mat-card class="vacancy-card">
-    <div class="card-header">
+    <div class="card-header" [ngClass]="getStatusClass(vacancy.vacancyStatus.vacancyStatusName)">
         <div>
             <mat-chip-set>
                 <mat-chip>
@@ -27,7 +27,7 @@
                 <div class="field-value salary">{{ vacancy.monthRate | currency }}</div>
             </div>
         </div>
-        
+
         <div class="vacancy-description">
             <div class="field-label">Опис вакансії:</div>
             <p class="description-text">{{ vacancy.description }}</p>
@@ -42,13 +42,15 @@
                 </mat-panel-title>
             </mat-expansion-panel-header>
 
-            <app-interview-request-list [vacancyId]="vacancy.id" [vacancyStatuses]="vacancyStatuses" [employeePositions]="employeePositions" 
-            [contractStatuses]="contractStatuses" [interviewResults]="interviewResults" 
-            [interviewRequestStatuses]="interviewRequestStatuses" [employeeStatuses]="employeeStatuses"></app-interview-request-list>
+            <app-interview-request-list [vacancyId]="vacancy.id" [vacancyStatuses]="vacancyStatuses"
+                [employeePositions]="employeePositions" [contractStatuses]="contractStatuses"
+                [interviewResults]="interviewResults" [interviewRequestStatuses]="interviewRequestStatuses"
+                [employeeStatuses]="employeeStatuses"></app-interview-request-list>
         </mat-expansion-panel>
     </mat-card-footer>
 
-    <mat-card-actions align="end" *ngIf="vacancy.vacancyStatus.vacancyStatusName === VacancyStatus.DRAFT" class="card-actions">
+    <mat-card-actions align="end" *ngIf="vacancy.vacancyStatus.vacancyStatusName === VacancyStatus.DRAFT"
+        class="card-actions">
         <button mat-raised-button color="accent" (click)="editVacancy()">
             <mat-icon>edit</mat-icon> Редагувати
         </button>
@@ -57,7 +59,11 @@
         </button>
     </mat-card-actions>
 
-    <mat-card-actions align="end" *ngIf="vacancy.vacancyStatus.vacancyStatusName === VacancyStatus.ACTIVE" class="card-actions">
+    <mat-card-actions align="end" *ngIf="vacancy.vacancyStatus.vacancyStatusName === VacancyStatus.ACTIVE"
+        class="card-actions">
+        <button mat-raised-button color="accent" (click)="openInterviewRequestForm()">
+            <mat-icon>add</mat-icon> Додати запит на інтерв'ю
+        </button>
         <button mat-raised-button color="accent" (click)="setVacancyStatus(VacancyStatus.CLOSED)">
             <mat-icon>check</mat-icon> Закрити вакансію
         </button>

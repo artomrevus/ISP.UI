@@ -25,7 +25,6 @@ import {AddPurchaseEquipmentDto, PurchaseEquipmentDto} from "../../../models/isp
 import {PurchaseEquipmentsService} from "../../../services/isp/purchase-equipments.service";
 import {AddUserActivityDto} from "../../../models/monitoring/activity.models";
 import {firstValueFrom} from "rxjs";
-import {VacancyDto} from "../../../models/isp/vacancy.models";
 import {MonitoringService} from "../../../services/monitoring/monitoring.service";
 
 
@@ -177,7 +176,7 @@ export class AddPurchaseComponent implements OnInit {
       // Log activity
       const activity: AddUserActivityDto = {
         actionOn: 'Закупки',
-        action: 'Створення закупки',
+        action: 'Створення',
         details: this.formatCreateActivityDetails(createdPurchase, purchaseEquipments)
       };
 

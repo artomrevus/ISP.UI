@@ -17,9 +17,7 @@ import {OfficeEquipmentsService} from "../../../services/isp/office-equipments.s
 import {AddUserActivityDto} from "../../../models/monitoring/activity.models";
 import {firstValueFrom} from "rxjs";
 import {MonitoringService} from "../../../services/monitoring/monitoring.service";
-import {EquipmentDto, FullEquipment} from "../../../models/isp/equipment.models";
 import {EquipmentsService} from "../../../services/isp/equipments.service";
-import {PurchasesService} from "../../../services/isp/purchases.service";
 import {PurchaseEquipmentsService} from "../../../services/isp/purchase-equipments.service";
 import {OfficesService} from "../../../services/isp/offices.service";
 
@@ -116,7 +114,7 @@ export class AddEquipmentPlacementComponent implements OnInit {
       // Log activity
       const activity: AddUserActivityDto = {
         actionOn: 'Розміщення',
-        action: 'Створення розміщення',
+        action: 'Створення',
         details: await this.formatCreateActivityDetails(equipmentPlacement)
       };
 

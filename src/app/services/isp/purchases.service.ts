@@ -8,7 +8,6 @@ import {
 } from "../../models/isp/purchase.models";
 import {firstValueFrom} from "rxjs";
 import {environment} from "../../../environments/environment.development";
-import {FullInternetConnectionRequest} from "../../models/isp/internet-connection-request.models";
 import {PurchaseStatusesService} from "./purchase-statuses.service";
 import {SuppliersService} from "./suppliers.service";
 import {EmployeesService} from "./employees.service";

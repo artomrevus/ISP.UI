@@ -17,7 +17,11 @@ export class EquipmentTypesService {
     return this.http.get<EquipmentTypeDto>(`${environment.apiBaseUrl}/equipmenttypes/${id}`);
   }
 
+  get(): Promise<EquipmentTypeDto[]> {
+    return firstValueFrom(this.http.get<EquipmentTypeDto[]>(`${environment.apiBaseUrl}/equipmenttypes/all`));
+  }
+
   getByIdFull(id: number): Promise<FullEquipmentType> {
-     return firstValueFrom(this.getById(id));
+    return firstValueFrom(this.getById(id));
   }
 }

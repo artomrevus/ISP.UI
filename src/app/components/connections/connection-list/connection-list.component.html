@@ -4,18 +4,22 @@
   <div class="connections-header">
     <h1>{{(connectionEmployeeId ? 'Мої підключення' : 'Всі запити')}}</h1>
     <div class="actions">
-        <button mat-raised-button color="primary" (click)="exportAsJson()">
-            <mat-icon>upload_file</mat-icon>
-            Експортувати
-        </button>
-        <button mat-raised-button color="primary" (click)="toggleFilterByEmployee()">
-            <mat-icon>all_inbox</mat-icon>
-            {{(connectionEmployeeId ? 'Всі запити' : 'Мої підключення' )}}
-        </button>
-        <button mat-raised-button color="primary" (click)="toggleFilterPanel()">
-            <mat-icon>filter_list</mat-icon>
-            Фільтрувати / Сортувати
-        </button>
+      <button *ngIf="!isAdditionalDataLoading" mat-raised-button color="primary" (click)="openCreateIcrDialog()">
+        <mat-icon>add</mat-icon>
+        Новий запит
+      </button>
+      <button *ngIf="!isIcrsLoading" mat-raised-button color="primary" (click)="exportAsJson()">
+        <mat-icon>upload_file</mat-icon>
+        Експортувати
+      </button>
+      <button mat-raised-button color="primary" (click)="toggleFilterByEmployee()">
+        <mat-icon>all_inbox</mat-icon>
+        {{(connectionEmployeeId ? 'Всі запити' : 'Мої підключення' )}}
+      </button>
+      <button *ngIf="!isAdditionalDataLoading" mat-raised-button color="primary" (click)="toggleFilterPanel()">
+        <mat-icon>filter_list</mat-icon>
+        Фільтрувати / Сортувати
+      </button>
     </div>
   </div>
 
@@ -43,14 +47,12 @@
           <mat-card *ngFor="let icr of pageIcrs" class="connection-card">
 
             <!-- Card header -->
-            <mat-card-header>
+            <mat-card-header [ngClass]="getStatusClass(icr.internetConnectionRequestStatus.internetConnectionRequestStatusName)">
 
               <div class="status-container">
-                <mat-chip-listbox>
                   <mat-chip>
                     {{ icr.internetConnectionRequestStatus.internetConnectionRequestStatusName }}
                   </mat-chip>
-                </mat-chip-listbox>
               </div>
 
               <div class="spacer"></div>

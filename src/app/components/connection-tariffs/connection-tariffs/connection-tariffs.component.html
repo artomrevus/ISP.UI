@@ -1,0 +1,257 @@
+<div class="tariffs-container">
+    <h2>Тарифи на підключення</h2>
+
+    <!-- Filter Form -->
+    <mat-card class="filter-card">
+        <mat-card-content class="filter-card-content">
+            <form [formGroup]="filterForm" class="filter-form">
+                <mat-form-field appearance="outline">
+                    <mat-label>Назва</mat-label>
+                    <input matInput formControlName="nameContains" placeholder="Фільтрувати за назвою">
+                </mat-form-field>
+
+                <div class="price-range">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Ціна від</mat-label>
+                        <input matInput type="number" formControlName="priceFrom" placeholder="Мінімальна ціна">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Ціна до</mat-label>
+                        <input matInput type="number" formControlName="priceTo" placeholder="Максимальна ціна">
+                    </mat-form-field>
+                </div>
+
+                <div class="date-range">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Дата початку від</mat-label>
+                        <input matInput [matDatepicker]="startDateFromPicker" formControlName="startDateFrom">
+                        <mat-datepicker-toggle matSuffix [for]="startDateFromPicker"></mat-datepicker-toggle>
+                        <mat-datepicker #startDateFromPicker></mat-datepicker>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Дата початку до</mat-label>
+                        <input matInput [matDatepicker]="startDateToPicker" formControlName="startDateTo">
+                        <mat-datepicker-toggle matSuffix [for]="startDateToPicker"></mat-datepicker-toggle>
+                        <mat-datepicker #startDateToPicker></mat-datepicker>
+                    </mat-form-field>
+                </div>
+
+                <div class="date-range">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Дата закінчення від</mat-label>
+                        <input matInput [matDatepicker]="endDateFromPicker" formControlName="endDateFrom">
+                        <mat-datepicker-toggle matSuffix [for]="endDateFromPicker"></mat-datepicker-toggle>
+                        <mat-datepicker #endDateFromPicker></mat-datepicker>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Дата закінчення до</mat-label>
+                        <input matInput [matDatepicker]="endDateToPicker" formControlName="endDateTo">
+                        <mat-datepicker-toggle matSuffix [for]="endDateToPicker"></mat-datepicker-toggle>
+                        <mat-datepicker #endDateToPicker></mat-datepicker>
+                    </mat-form-field>
+                </div>
+
+                <div class="button-container">
+                    <button mat-raised-button color="primary" (click)="clearFilters()">
+                        Очистити фільтри
+                    </button>
+                </div>
+            </form>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Add New Tariff Button -->
+    <div class="add-button-container">
+        <button mat-raised-button color="primary" (click)="startAddNew()" *ngIf="!isAddingNewRow">
+            <mat-icon>add</mat-icon> Додати тариф
+        </button>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-container" *ngIf="isLoading">
+        <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <!-- Tariffs Table -->
+    <div class="table-container">
+        <table mat-table [dataSource]="tariffs" matSort (matSortChange)="onSortChange($event)" class="mat-elevation-z8">
+
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Назва </th>
+                <td mat-cell *matCellDef="let tariff">
+                    <ng-container *ngIf="editingId !== tariff.id; else editNameField">
+                        {{ tariff.name }}
+                    </ng-container>
+                    <ng-template #editNameField>
+                        <form [formGroup]="editForm">
+                            <mat-form-field appearance="outline" class="edit-field">
+                                <input matInput formControlName="name">
+                                <mat-error *ngIf="editForm.get('name')?.invalid">Назва обов'язкова</mat-error>
+                            </mat-form-field>
+                        </form>
+                    </ng-template>
+                </td>
+                <!-- Add New Row -->
+                <td mat-cell *matFooterCellDef>
+                    <form [formGroup]="addForm" *ngIf="isAddingNewRow">
+                        <mat-form-field appearance="outline" class="edit-field">
+                            <input matInput formControlName="name" placeholder="Введіть назву">
+                            <mat-error *ngIf="addForm.get('name')?.invalid">Назва обов'язкова</mat-error>
+                        </mat-form-field>
+                    </form>
+                </td>
+            </ng-container>
+
+            <!-- Price Column -->
+            <ng-container matColumnDef="price">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Ціна </th>
+                <td mat-cell *matCellDef="let tariff">
+                    <ng-container *ngIf="editingId !== tariff.id; else editPriceField">
+                        {{ tariff.price | currency }}
+                    </ng-container>
+                    <ng-template #editPriceField>
+                        <form [formGroup]="editForm">
+                            <mat-form-field appearance="outline" class="edit-field">
+                                <input matInput type="number" formControlName="price">
+                                <mat-error *ngIf="editForm.get('price')?.hasError('required')">Ціна обов'язкова</mat-error>
+                                <mat-error *ngIf="editForm.get('price')?.hasError('min')">Ціна має бути більше 0</mat-error>
+                            </mat-form-field>
+                        </form>
+                    </ng-template>
+                </td>
+                <!-- Add New Row -->
+                <td mat-cell *matFooterCellDef>
+                    <form [formGroup]="addForm" *ngIf="isAddingNewRow">
+                        <mat-form-field appearance="outline" class="edit-field">
+                            <input matInput type="number" formControlName="price" placeholder="Введіть ціну">
+                            <mat-error *ngIf="addForm.get('price')?.hasError('required')">Ціна обов'язкова</mat-error>
+                            <mat-error *ngIf="addForm.get('price')?.hasError('min')">Ціна має бути більше 0</mat-error>
+                        </mat-form-field>
+                    </form>
+                </td>
+            </ng-container>
+
+            <!-- Start Date Column -->
+            <ng-container matColumnDef="startDate">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Дата початку </th>
+                <td mat-cell *matCellDef="let tariff">
+                    <ng-container *ngIf="editingId !== tariff.id; else editStartDateField">
+                        {{ tariff.startDate }}
+                    </ng-container>
+                    <ng-template #editStartDateField>
+                        <form [formGroup]="editForm">
+                            <mat-form-field appearance="outline" class="edit-field">
+                                <input matInput [matDatepicker]="editStartDatePicker" formControlName="startDate">
+                                <mat-datepicker-toggle matSuffix [for]="editStartDatePicker"></mat-datepicker-toggle>
+                                <mat-datepicker #editStartDatePicker></mat-datepicker>
+                                <mat-error *ngIf="editForm.get('startDate')?.hasError('required')">Дата початку обов'язкова</mat-error>
+                            </mat-form-field>
+                        </form>
+                    </ng-template>
+                </td>
+                <!-- Add New Row -->
+                <td mat-cell *matFooterCellDef>
+                    <form [formGroup]="addForm" *ngIf="isAddingNewRow">
+                        <mat-form-field appearance="outline" class="edit-field">
+                            <input matInput [matDatepicker]="addStartDatePicker" formControlName="startDate" placeholder="Виберіть дату початку">
+                            <mat-datepicker-toggle matSuffix [for]="addStartDatePicker"></mat-datepicker-toggle>
+                            <mat-datepicker #addStartDatePicker></mat-datepicker>
+                            <mat-error *ngIf="addForm.get('startDate')?.hasError('required')">Дата початку обов'язкова</mat-error>
+                        </mat-form-field>
+                    </form>
+                </td>
+            </ng-container>
+
+            <!-- End Date Column -->
+            <ng-container matColumnDef="endDate">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Дата закінчення </th>
+                <td mat-cell *matCellDef="let tariff">
+                    <ng-container *ngIf="editingId !== tariff.id; else editEndDateField">
+                        {{ tariff.endDate }}
+                    </ng-container>
+                    <ng-template #editEndDateField>
+                        <form [formGroup]="editForm">
+                            <mat-form-field appearance="outline" class="edit-field">
+                                <input matInput [matDatepicker]="editEndDatePicker" formControlName="endDate">
+                                <mat-datepicker-toggle matSuffix [for]="editEndDatePicker"></mat-datepicker-toggle>
+                                <mat-datepicker #editEndDatePicker></mat-datepicker>
+                                <mat-error *ngIf="editForm.get('endDate')?.hasError('required')">Дата закінчення обов'язкова</mat-error>
+                                <mat-error *ngIf="editForm.get('endDate')?.hasError('dateRange')">Дата закінчення має бути після дати початку</mat-error>
+                            </mat-form-field>
+                        </form>
+                    </ng-template>
+                </td>
+                <!-- Add New Row -->
+                <td mat-cell *matFooterCellDef>
+                    <form [formGroup]="addForm" *ngIf="isAddingNewRow">
+                        <mat-form-field appearance="outline" class="edit-field">
+                            <input matInput [matDatepicker]="addEndDatePicker" formControlName="endDate" placeholder="Виберіть дату закінчення">
+                            <mat-datepicker-toggle matSuffix [for]="addEndDatePicker"></mat-datepicker-toggle>
+                            <mat-datepicker #addEndDatePicker></mat-datepicker>
+                            <mat-error *ngIf="addForm.get('endDate')?.hasError('required')">Дата закінчення обов'язкова</mat-error>
+                            <mat-error *ngIf="addForm.get('endDate')?.hasError('dateRange')">Дата закінчення має бути після дати початку</mat-error>
+                        </mat-form-field>
+                    </form>
+                </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef> Дії </th>
+                <td mat-cell *matCellDef="let tariff">
+                    <ng-container *ngIf="editingId !== tariff.id; else editActions">
+                        <button mat-icon-button color="primary" (click)="startEdit(tariff)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="deleteTariff(tariff.id)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </ng-container>
+                    <ng-template #editActions>
+                        <button mat-icon-button color="primary" (click)="saveEdit()" [disabled]="editForm.invalid">
+                            <mat-icon>save</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="cancelEdit()">
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                    </ng-template>
+                </td>
+                <!-- Add New Row Actions -->
+                <td mat-cell *matFooterCellDef>
+                    <ng-container *ngIf="isAddingNewRow">
+                        <button mat-icon-button color="primary" (click)="saveNewTariff()" [disabled]="addForm.invalid">
+                            <mat-icon>save</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="cancelAddNew()">
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                    </ng-container>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-footer-row *matFooterRowDef="displayedColumns" [hidden]="!isAddingNewRow"></tr>
+
+            <!-- No Data Row -->
+            <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+                    Тарифів не знайдено
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <mat-paginator
+            [length]="totalItems"
+            [pageSize]="pagination.pageSize"
+            [pageSizeOptions]="[5, 10, 25, 50]"
+            (page)="onPageChange($event)"
+            showFirstLastButtons>
+    </mat-paginator>
+</div>

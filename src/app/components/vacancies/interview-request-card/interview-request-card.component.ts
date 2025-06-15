@@ -29,6 +29,7 @@ import { RegisterEmployeeRequestDto } from '../../../models/auth/auth-request.mo
 import { CopyWindowService } from '../../../services/common/copy-window.service';
 import { MonitoringService } from '../../../services/monitoring/monitoring.service';
 import { AddUserActivityDto } from '../../../models/monitoring/activity.models';
+import { DateFormatterService } from '../../../services/common/date-formatter.service';
 
 @Component({
   selector: 'app-interview-request-card',
@@ -64,6 +65,7 @@ export class InterviewRequestCardComponent {
     private vacanciesService: VacanciesService,
     private authEmployeeService: AuthEmployeeService,
     private monitoringService: MonitoringService,
+    private dateFormatter: DateFormatterService,
     private dialog: MatDialog,
     private copyWindowService: CopyWindowService
   ) { }
@@ -81,6 +83,7 @@ export class InterviewRequestCardComponent {
       // Create update dto
       let updateDto: InterviewRequestDto = this.interviewRequest;
       updateDto.interviewRequestStatusId = updatedStatus.id;
+      updateDto.considerationDate = this.dateFormatter.formatDate(new Date());
 
       // Update interview request
       await firstValueFrom(this.interviewRequestsService.update(updateDto));

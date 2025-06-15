@@ -7,7 +7,6 @@ import {
   FullPurchaseEquipment,
   PurchaseEquipmentDto
 } from "../../models/isp/purchase-equipments.models";
-import {AddPurchaseDto, FullPurchase, PurchaseDto} from "../../models/isp/purchase.models";
 import {EquipmentsService} from "./equipments.service";
 import {EquipmentPlacementsService} from "./equipment-placements.service";
 

@@ -1,0 +1,98 @@
+.tariffs-container {
+    padding: 20px;
+}
+
+.tariffs-container h2 {
+    margin-bottom: 20px;
+}
+
+.filter-card {
+    margin-bottom: 20px;
+}
+
+.filter-card-content {
+    padding-bottom: 0; /* Remove bottom padding from card content */
+}
+
+/* Target only the filter form fields to remove bottom padding */
+.filter-form ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+}
+
+.filter-form ::ng-deep .mat-mdc-form-field-bottom-align {
+    display: none !important;
+}
+
+/* Make sure error messages are visible in edit/add forms */
+.edit-field ::ng-deep .mat-mdc-form-field-subscript-wrapper,
+.edit-field ::ng-deep .mat-mdc-form-field-bottom-align {
+    display: block !important; /* Show error messages for edit fields */
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center; /* Vertically center items */
+}
+
+.filter-form mat-form-field {
+    flex: 1;
+    min-width: 200px;
+}
+
+.price-range, .date-range {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+
+.button-container {
+    display: flex;
+    align-items: center; /* Vertically center the button */
+    margin-bottom: 16px; /* Add some bottom margin */
+}
+
+.add-button-container {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.table-container table {
+    width: 100%;
+}
+
+.edit-field {
+    width: 100%;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.no-data {
+    text-align: center;
+    padding: 16px;
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.mat-column-actions {
+    width: 120px;
+    text-align: center;
+}
+
+.mat-column-price {
+    width: 150px;
+}
+
+.mat-column-startDate, .mat-column-endDate {
+    width: 180px;
+}
