@@ -1,0 +1,56 @@
+<h2 mat-dialog-title class="title">{{ data.title }}</h2>
+<mat-dialog-content class="connection-request-dialog-content">
+    <div class="card-row">
+        <span class="label-input">Дата подання запиту:</span>
+        <mat-form-field appearance="outline" class="selection">
+            <input matInput [matDatepicker]="requestDatePicker" [(ngModel)]="icrData.requestDate">
+            <mat-datepicker-toggle matSuffix [for]="requestDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #requestDatePicker></mat-datepicker>
+        </mat-form-field>
+    </div>
+
+    <div class="card-row">
+        <span class="label-input">Тип локації:</span>
+        <mat-form-field appearance="outline" class="selection">
+            <mat-label>Виберіть тип локації</mat-label>
+            <mat-select [(ngModel)]="icrData.locationType" (selectionChange)="onLocationTypeChange()">
+                <mat-option *ngFor="let locationType of locationTypes" [value]="locationType">
+                    {{ locationType.locationTypeName }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <div class="card-row" *ngIf="icrData.locationType">
+        <span class="label-input">Клієнт:</span>
+        <mat-form-field appearance="outline" class="selection">
+            <mat-label>Виберіть клієнта</mat-label>
+            <mat-select [(ngModel)]="icrData.client">
+                <mat-option *ngFor="let client of filteredClients" [value]="client">
+                    {{ client.email }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <div class="card-row" *ngIf="icrData.locationType">
+        <span class="label-input">Інтернет тариф:</span>
+        <mat-form-field appearance="outline" class="selection">
+            <mat-label>Виберіть тариф</mat-label>
+            <mat-select [(ngModel)]="icrData.internetTariff">
+                <mat-option *ngFor="let tariff of filteredInternetTariffs" [value]="tariff">
+                    {{ tariff.name }} - {{ tariff.price | currency }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="buttons-box">
+    <button mat-button mat-dialog-close>Скасувати</button>
+    <button mat-raised-button color="primary"
+        [disabled]="!icrData.requestDate || !icrData.locationType || !icrData.client || !icrData.internetTariff"
+        (click)="saveRequest()">
+        <mat-icon>save</mat-icon> Створити запит
+    </button>
+</mat-dialog-actions>

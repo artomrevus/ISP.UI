@@ -1,0 +1,207 @@
+<div class="equipment-container">
+    <h2>Обладнання</h2>
+
+    <!-- Filter Form -->
+    <mat-card class="filter-card">
+        <mat-card-content class="filter-card-content">
+            <form [formGroup]="filterForm" class="filter-form">
+                <mat-form-field appearance="outline">
+                    <mat-label>Назва</mat-label>
+                    <input matInput formControlName="nameContains" placeholder="Фільтрувати за назвою">
+                </mat-form-field>
+
+                <div class="price-range">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Ціна від</mat-label>
+                        <input matInput type="number" formControlName="priceFrom" placeholder="Мінімальна ціна">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Ціна до</mat-label>
+                        <input matInput type="number" formControlName="priceTo" placeholder="Максимальна ціна">
+                    </mat-form-field>
+                </div>
+
+                <div class="select-filters">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Тип обладнання</mat-label>
+                        <mat-select formControlName="equipmentTypeIds" multiple>
+                            <mat-option *ngFor="let equipmentType of equipmentTypes" [value]="equipmentType.id">
+                                {{ equipmentType.equipmentTypeName }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <div class="button-container">
+                    <button mat-raised-button color="primary" (click)="clearFilters()">
+                        Очистити фільтри
+                    </button>
+                </div>
+            </form>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Add New Equipment Button -->
+    <div class="add-button-container">
+        <button mat-raised-button color="primary" (click)="startAddNew()" *ngIf="!isAddingNewRow">
+            <mat-icon>add</mat-icon> Додати обладнання
+        </button>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-container" *ngIf="isLoading">
+        <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <!-- Equipment Table -->
+    <div class="table-container">
+        <table mat-table [dataSource]="equipment" matSort (matSortChange)="onSortChange($event)" class="mat-elevation-z8">
+
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Назва </th>
+                <td mat-cell *matCellDef="let equipment">
+                    <ng-container *ngIf="editingId !== equipment.id; else editNameField">
+                        {{ equipment.name }}
+                    </ng-container>
+                    <ng-template #editNameField>
+                        <form [formGroup]="editForm">
+                            <mat-form-field appearance="outline" class="edit-field">
+                                <input matInput formControlName="name">
+                                <mat-error *ngIf="editForm.get('name')?.invalid">Назва обов'язкова</mat-error>
+                            </mat-form-field>
+                        </form>
+                    </ng-template>
+                </td>
+                <!-- Add New Row -->
+                <td mat-cell *matFooterCellDef>
+                    <form [formGroup]="addForm" *ngIf="isAddingNewRow">
+                        <mat-form-field appearance="outline" class="edit-field">
+                            <input matInput formControlName="name" placeholder="Введіть назву">
+                            <mat-error *ngIf="addForm.get('name')?.invalid">Назва обов'язкова</mat-error>
+                        </mat-form-field>
+                    </form>
+                </td>
+            </ng-container>
+
+            <!-- Price Column -->
+            <ng-container matColumnDef="price">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Ціна </th>
+                <td mat-cell *matCellDef="let equipment">
+                    <ng-container *ngIf="editingId !== equipment.id; else editPriceField">
+                        {{ equipment.price | currency }}
+                    </ng-container>
+                    <ng-template #editPriceField>
+                        <form [formGroup]="editForm">
+                            <mat-form-field appearance="outline" class="edit-field">
+                                <input matInput type="number" formControlName="price">
+                                <mat-error *ngIf="editForm.get('price')?.hasError('required')">Ціна обов'язкова</mat-error>
+                                <mat-error *ngIf="editForm.get('price')?.hasError('min')">Ціна має бути більше 0</mat-error>
+                            </mat-form-field>
+                        </form>
+                    </ng-template>
+                </td>
+                <!-- Add New Row -->
+                <td mat-cell *matFooterCellDef>
+                    <form [formGroup]="addForm" *ngIf="isAddingNewRow">
+                        <mat-form-field appearance="outline" class="edit-field">
+                            <input matInput type="number" formControlName="price" placeholder="Введіть ціну">
+                            <mat-error *ngIf="addForm.get('price')?.hasError('required')">Ціна обов'язкова</mat-error>
+                            <mat-error *ngIf="addForm.get('price')?.hasError('min')">Ціна має бути більше 0</mat-error>
+                        </mat-form-field>
+                    </form>
+                </td>
+            </ng-container>
+
+            <!-- Equipment Type Column -->
+            <ng-container matColumnDef="equipmentType">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Тип обладнання </th>
+                <td mat-cell *matCellDef="let equipment">
+                    <ng-container *ngIf="editingId !== equipment.id; else editEquipmentTypeField">
+                        {{ equipment.equipmentType?.equipmentTypeName || 'Невідомо' }}
+                    </ng-container>
+                    <ng-template #editEquipmentTypeField>
+                        <form [formGroup]="editForm">
+                            <mat-form-field appearance="outline" class="edit-field">
+                                <mat-select formControlName="equipmentTypeId">
+                                    <mat-option *ngFor="let equipmentType of equipmentTypes" [value]="equipmentType.id">
+                                        {{ equipmentType.equipmentTypeName }}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="editForm.get('equipmentTypeId')?.invalid">Тип обладнання обов'язковий</mat-error>
+                            </mat-form-field>
+                        </form>
+                    </ng-template>
+                </td>
+                <!-- Add New Row -->
+                <td mat-cell *matFooterCellDef>
+                    <form [formGroup]="addForm" *ngIf="isAddingNewRow">
+                        <mat-form-field appearance="outline" class="edit-field">
+                            <mat-select formControlName="equipmentTypeId" placeholder="Виберіть тип обладнання">
+                                <mat-option *ngFor="let equipmentType of equipmentTypes" [value]="equipmentType.id">
+                                    {{ equipmentType.equipmentTypeName }}
+                                </mat-option>
+                            </mat-select>
+                            <mat-error *ngIf="addForm.get('equipmentTypeId')?.invalid">Тип обладнання обов'язковий</mat-error>
+                        </mat-form-field>
+                    </form>
+                </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef> Дії </th>
+                <td mat-cell *matCellDef="let equipment">
+                    <ng-container *ngIf="editingId !== equipment.id; else editActions">
+                        <button mat-icon-button color="primary" (click)="startEdit(equipment)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="deleteEquipment(equipment.id)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </ng-container>
+                    <ng-template #editActions>
+                        <button mat-icon-button color="primary" (click)="saveEdit()" [disabled]="editForm.invalid">
+                            <mat-icon>save</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="cancelEdit()">
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                    </ng-template>
+                </td>
+                <!-- Add New Row Actions -->
+                <td mat-cell *matFooterCellDef>
+                    <ng-container *ngIf="isAddingNewRow">
+                        <button mat-icon-button color="primary" (click)="saveNewEquipment()" [disabled]="addForm.invalid">
+                            <mat-icon>save</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="cancelAddNew()">
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                    </ng-container>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-footer-row *matFooterRowDef="displayedColumns" [hidden]="!isAddingNewRow"></tr>
+
+            <!-- No Data Row -->
+            <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+                    Обладнання не знайдено
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <mat-paginator
+        [length]="totalItems"
+        [pageSize]="pagination.pageSize"
+        [pageSizeOptions]="[5, 10, 25, 50]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons>
+    </mat-paginator>
+</div>

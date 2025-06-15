@@ -1,0 +1,180 @@
+.clients-container {
+    padding: 20px;
+}
+
+.clients-container h2 {
+    margin-bottom: 20px;
+}
+
+.filter-card {
+    margin-bottom: 20px;
+}
+
+.filter-card-content {
+    padding-bottom: 0;
+}
+
+.filter-form ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+}
+
+.filter-form ::ng-deep .mat-mdc-form-field-bottom-align {
+    display: none !important;
+}
+
+.edit-field ::ng-deep .mat-mdc-form-field-subscript-wrapper,
+.edit-field ::ng-deep .mat-mdc-form-field-bottom-align,
+.select-field ::ng-deep .mat-mdc-form-field-subscript-wrapper,
+.select-field ::ng-deep .mat-mdc-form-field-bottom-align {
+    display: block !important;
+}
+
+.filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.text-filters,
+.date-filters,
+.select-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+}
+
+.text-filters mat-form-field,
+.date-filters mat-form-field,
+.select-filters mat-form-field {
+    flex: 1;
+    min-width: 200px;
+}
+
+.button-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.add-button-container {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.table-container table {
+    width: 100%;
+    min-width: 1530px;
+}
+
+.edit-field {
+    width: 100%;
+}
+
+.cascading-selects {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.select-field {
+    width: 100%;
+}
+
+.display-value {
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.no-data {
+    text-align: center;
+    padding: 16px;
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.mat-column-actions {
+    width: 120px;
+    text-align: center;
+}
+
+.mat-column-firstName {
+    width: 120px;
+}
+
+.mat-column-lastName {
+    width: 120px;
+}
+
+.mat-column-email {
+    width: 180px;
+}
+
+.mat-column-phoneNumber {
+    width: 140px;
+}
+
+.mat-column-clientStatus {
+    width: 120px;
+}
+
+.mat-column-registrationDate {
+    width: 130px;
+}
+
+
+.mat-column-apartmentNumber {
+    width: 80px;
+}
+
+.mat-column-houseNumber {
+    width: 250px;
+}
+
+.mat-column-street {
+    width: 120px;
+}
+
+.mat-column-city {
+    width: 100px;
+}
+
+.mat-column-locationType {
+    width: 120px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .text-filters,
+    .date-filters,
+    .select-filters {
+        flex-direction: column;
+    }
+    
+    .text-filters mat-form-field,
+    .date-filters mat-form-field,
+    .select-filters mat-form-field {
+        width: 100%;
+        min-width: unset;
+    }
+    
+    .button-container {
+        justify-content: center;
+    }
+    
+    .cascading-selects {
+        gap: 4px;
+    }
+}

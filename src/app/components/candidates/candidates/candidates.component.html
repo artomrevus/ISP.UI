@@ -1,0 +1,224 @@
+<div class="candidates-container">
+    <h2>Кандидати</h2>
+
+    <!-- Filter Form -->
+    <mat-card class="filter-card">
+        <mat-card-content class="filter-card-content">
+            <form [formGroup]="filterForm" class="filter-form">
+                <mat-form-field appearance="outline">
+                    <mat-label>Ім'я</mat-label>
+                    <input matInput formControlName="firstNameContains" placeholder="Фільтрувати за ім'ям">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Прізвище</mat-label>
+                    <input matInput formControlName="lastNameContains" placeholder="Фільтрувати за прізвищем">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Номер телефону</mat-label>
+                    <input matInput formControlName="phoneNumberContains" placeholder="Фільтрувати за номером телефону">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Email</mat-label>
+                    <input matInput formControlName="emailContains" placeholder="Фільтрувати за email">
+                </mat-form-field>
+
+                <div class="button-container">
+                    <button mat-raised-button color="primary" (click)="clearFilters()">
+                        Очистити фільтри
+                    </button>
+                </div>
+            </form>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Add New Candidate Button -->
+    <div class="add-button-container">
+        <button mat-raised-button color="primary" (click)="startAddNew()" *ngIf="!isAddingNewRow">
+            <mat-icon>add</mat-icon> Додати кандидата
+        </button>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-container" *ngIf="isLoading">
+        <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <!-- Candidates Table -->
+    <div class="table-container">
+        <table mat-table [dataSource]="candidates()" matSort (matSortChange)="onSortChange($event)" class="mat-elevation-z8">
+
+            <!-- First Name Column -->
+            <ng-container matColumnDef="firstName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Ім'я </th>
+                <td mat-cell *matCellDef="let candidate">
+                    <ng-container *ngIf="editingId !== candidate.id; else editFirstNameField">
+                        {{ candidate.firstName }}
+                    </ng-container>
+                    <ng-template #editFirstNameField>
+                        <form [formGroup]="editForm">
+                            <mat-form-field appearance="outline" class="edit-field">
+                                <input matInput formControlName="firstName">
+                                <mat-error *ngIf="editForm.get('firstName')?.hasError('required')">Ім'я обов'язкове</mat-error>
+                                <mat-error *ngIf="editForm.get('firstName')?.hasError('minlength')">Ім'я має містити мінімум 2 символи</mat-error>
+                            </mat-form-field>
+                        </form>
+                    </ng-template>
+                </td>
+                <!-- Add New Row -->
+                <td mat-cell *matFooterCellDef>
+                    <form [formGroup]="addForm" *ngIf="isAddingNewRow">
+                        <mat-form-field appearance="outline" class="edit-field">
+                            <input matInput formControlName="firstName" placeholder="Введіть ім'я">
+                            <mat-error *ngIf="addForm.get('firstName')?.hasError('required')">Ім'я обов'язкове</mat-error>
+                            <mat-error *ngIf="addForm.get('firstName')?.hasError('minlength')">Ім'я має містити мінімум 2 символи</mat-error>
+                        </mat-form-field>
+                    </form>
+                </td>
+            </ng-container>
+
+            <!-- Last Name Column -->
+            <ng-container matColumnDef="lastName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Прізвище </th>
+                <td mat-cell *matCellDef="let candidate">
+                    <ng-container *ngIf="editingId !== candidate.id; else editLastNameField">
+                        {{ candidate.lastName }}
+                    </ng-container>
+                    <ng-template #editLastNameField>
+                        <form [formGroup]="editForm">
+                            <mat-form-field appearance="outline" class="edit-field">
+                                <input matInput formControlName="lastName">
+                                <mat-error *ngIf="editForm.get('lastName')?.hasError('required')">Прізвище обов'язкове</mat-error>
+                                <mat-error *ngIf="editForm.get('lastName')?.hasError('minlength')">Прізвище має містити мінімум 2 символи</mat-error>
+                            </mat-form-field>
+                        </form>
+                    </ng-template>
+                </td>
+                <!-- Add New Row -->
+                <td mat-cell *matFooterCellDef>
+                    <form [formGroup]="addForm" *ngIf="isAddingNewRow">
+                        <mat-form-field appearance="outline" class="edit-field">
+                            <input matInput formControlName="lastName" placeholder="Введіть прізвище">
+                            <mat-error *ngIf="addForm.get('lastName')?.hasError('required')">Прізвище обов'язкове</mat-error>
+                            <mat-error *ngIf="addForm.get('lastName')?.hasError('minlength')">Прізвище має містити мінімум 2 символи</mat-error>
+                        </mat-form-field>
+                    </form>
+                </td>
+            </ng-container>
+
+            <!-- Phone Number Column -->
+            <ng-container matColumnDef="phoneNumber">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Номер телефону </th>
+                <td mat-cell *matCellDef="let candidate">
+                    <ng-container *ngIf="editingId !== candidate.id; else editPhoneField">
+                        {{ candidate.phoneNumber }}
+                    </ng-container>
+                    <ng-template #editPhoneField>
+                        <form [formGroup]="editForm">
+                            <mat-form-field appearance="outline" class="edit-field">
+                                <input matInput formControlName="phoneNumber">
+                                <mat-error *ngIf="editForm.get('phoneNumber')?.hasError('required')">Номер телефону обов'язковий</mat-error>
+                                <mat-error *ngIf="editForm.get('phoneNumber')?.hasError('pattern')">Неправильний формат номера телефону</mat-error>
+                            </mat-form-field>
+                        </form>
+                    </ng-template>
+                </td>
+                <!-- Add New Row -->
+                <td mat-cell *matFooterCellDef>
+                    <form [formGroup]="addForm" *ngIf="isAddingNewRow">
+                        <mat-form-field appearance="outline" class="edit-field">
+                            <input matInput formControlName="phoneNumber" placeholder="Введіть номер телефону">
+                            <mat-error *ngIf="addForm.get('phoneNumber')?.hasError('required')">Номер телефону обов'язковий</mat-error>
+                            <mat-error *ngIf="addForm.get('phoneNumber')?.hasError('pattern')">Неправильний формат номера телефону</mat-error>
+                        </mat-form-field>
+                    </form>
+                </td>
+            </ng-container>
+
+            <!-- Email Column -->
+            <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Електронна пошта </th>
+                <td mat-cell *matCellDef="let candidate">
+                    <ng-container *ngIf="editingId !== candidate.id; else editEmailField">
+                        {{ candidate.email }}
+                    </ng-container>
+                    <ng-template #editEmailField>
+                        <form [formGroup]="editForm">
+                            <mat-form-field appearance="outline" class="edit-field">
+                                <input matInput type="email" formControlName="email">
+                                <mat-error *ngIf="editForm.get('email')?.hasError('required')">Email обов'язковий</mat-error>
+                                <mat-error *ngIf="editForm.get('email')?.hasError('email')">Неправильний формат email</mat-error>
+                            </mat-form-field>
+                        </form>
+                    </ng-template>
+                </td>
+                <!-- Add New Row -->
+                <td mat-cell *matFooterCellDef>
+                    <form [formGroup]="addForm" *ngIf="isAddingNewRow">
+                        <mat-form-field appearance="outline" class="edit-field">
+                            <input matInput type="email" formControlName="email" placeholder="Введіть email">
+                            <mat-error *ngIf="addForm.get('email')?.hasError('required')">Email обов'язковий</mat-error>
+                            <mat-error *ngIf="addForm.get('email')?.hasError('email')">Неправильний формат email</mat-error>
+                        </mat-form-field>
+                    </form>
+                </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef> Дії </th>
+                <td mat-cell *matCellDef="let candidate">
+                    <ng-container *ngIf="editingId !== candidate.id; else editActions">
+                        <button mat-icon-button color="primary" (click)="startEdit(candidate)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="deleteCandidate(candidate.id)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </ng-container>
+                    <ng-template #editActions>
+                        <button mat-icon-button color="primary" (click)="saveEdit()" [disabled]="editForm.invalid">
+                            <mat-icon>save</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="cancelEdit()">
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                    </ng-template>
+                </td>
+                <!-- Add New Row Actions -->
+                <td mat-cell *matFooterCellDef>
+                    <ng-container *ngIf="isAddingNewRow">
+                        <button mat-icon-button color="primary" (click)="saveNewCandidate()" [disabled]="addForm.invalid">
+                            <mat-icon>save</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="cancelAddNew()">
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                    </ng-container>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-footer-row *matFooterRowDef="displayedColumns" [hidden]="!isAddingNewRow"></tr>
+
+            <!-- No Data Row -->
+            <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+                    Кандидатів не знайдено
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <mat-paginator
+        [length]="totalItems"
+        [pageSize]="pagination.pageSize"
+        [pageSizeOptions]="[5, 10, 25, 50]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons>
+    </mat-paginator>
+</div>
